@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IA Técnico - Asistente</title>
+<title>IA Técnico - Soluciones</title>
 <style>
 body{margin:0;font-family:Arial;background:#0f172a;color:white;display:flex;flex-direction:column;height:100vh}
 header{padding:16px;text-align:center;background:#1e293b}
 header h2{margin:0} header p{margin:4px 0 0;color:#94a3b8;font-size:13px}
 #chat{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px}
-.msg{max-width:80%;padding:12px 14px;border-radius:16px;line-height:1.4;font-size:15px}
+.msg{max-width:85%;padding:12px 14px;border-radius:16px;line-height:1.5;font-size:15px;white-space:pre-wrap}
 .user{align-self:flex-end;background:#2563eb}
 .bot{align-self:flex-start;background:#334155}
 .controls{display:flex;gap:8px;padding:12px;background:#1e293b}
@@ -19,70 +19,91 @@ button{padding:12px 14px;border-radius:50%;border:none;background:#2563eb;color:
 </style>
 </head>
 <body>
-<header><h2>📱 IA Técnico</h2><p>Reparación de celulares • En línea ahora</p></header>
+<header><h2>🛠️ IA Técnico</h2><p>Consulta soluciones • Supabase + Gemini</p></header>
 <div id="chat"></div>
 <div class="controls">
 <button onclick="escuchar()">🎤</button>
-<input id="input" placeholder="Escribe... Ej: Se me cayó mi celular" onkeypress="if(event.key==='Enter') enviar()">
+<input id="input" placeholder="Ej: Error en POS modelo..." onkeypress="if(event.key==='Enter') enviar()">
 <button onclick="enviar()">➤</button>
 </div>
-
 <script>
-const chat = document.getElementById('chat');
-let vozActiva = true;
+const GEMINI_KEY = "PEGA_AQUI_TU_LLAVE_AQ_COMPLETA";
+const SUPABASE_URL = "https://nlynbrrrybgufwmcjhmu.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_JtRhd51yYCWEEfHCs50Cjw_RSS-_kAu";
 
+const chat = document.getElementById('chat');
 function agregar(texto, tipo){
   const div = document.createElement('div');
   div.className = 'msg ' + tipo;
-  div.innerHTML = texto;
+  div.textContent = texto;
   if(tipo==='bot'){
-    div.innerHTML += `<br><span class="speak" onclick="hablar('${texto.replace(/'/g,'')}')">🔊 Escuchar audio</span>`;
+    const s = document.createElement('span');
+    s.className='speak'; s.textContent='🔊 Escuchar audio';
+    s.onclick = ()=> hablar(texto);
+    div.appendChild(document.createElement('br'));
+    div.appendChild(s);
   }
   chat.appendChild(div);
   chat.scrollTop = chat.scrollHeight;
   return div;
 }
-
 function hablar(texto){
   speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(texto);
-  u.lang = 'es-PE'; u.rate = 1; u.pitch = 1;
+  u.lang = 'es-PE'; u.rate = 1;
   speechSynthesis.speak(u);
 }
-
-function responderIA(pregunta){
-  const p = pregunta.toLowerCase();
-  let r = "";
-  if(p.includes("hola") || p.includes("buenas")) r = "Hola, soy IA Técnico. ¿Qué le pasó a tu celular? ¿Se cayó, no prende o se rompió la pantalla?";
-  else if(p.includes("pantalla") || p.includes("roto") || p.includes("quebrado")) r = "La pantalla la reparamos desde 80 soles dependiendo el modelo. ¿Qué modelo es tu celular? La revisión es gratis.";
-  else if(p.includes("agua") || p.includes("mojo") || p.includes("cayo")) r = "Si se cayó al agua, no lo intentes prender. Tráelo lo antes posible, lo limpiamos internamente. ¿Qué modelo es?";
-  else if(p.includes("no prende") || p.includes("bateria")) r = "Puede ser batería o placa. La revisión es gratis y te digo el precio exacto en 15 minutos. ¿Qué modelo tienes?";
-  else if(p.includes("precio") || p.includes("cuanto")) r = "Depende del modelo, pero la revisión es gratis. Dime qué modelo es y te doy precio exacto al toque.";
-  else if(p.includes("donde") || p.includes("ubicacion") || p.includes("direccion")) r = "Estamos en Lima. Puedes venir hoy mismo, atendemos de 10am a 8pm. ¿Quieres que te agende una cita?";
-  else r = "Entendido. Cuéntame qué modelo es tu celular y qué le pasó, y te digo precio y tiempo de reparación al toque.";
-  agregar(r, 'bot');
-  if(vozActiva) hablar(r);
+async function buscarEnSupabase(pregunta){
+  const q = encodeURIComponent(pregunta);
+  const url = `${SUPABASE_URL}/rest/v1/soluciones?select=*&or=(entidad.ilike.*${q}*,error.ilike.*${q}*,modelo_pos.ilike.*${q}*,comercio.ilike.*${q}*,cobertura.ilike.*${q}*,solucion.ilike.*${q}*)&limit=10&order=fecha.desc`;
+  try{
+    const res = await fetch(url, { headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` } });
+    const datos = await res.json();
+    if(!Array.isArray(datos)) return [];
+    return datos;
+  }catch(e){ return []; }
 }
-
+async function preguntarGemini(pregunta, datos){
+  const contexto = datos.length ? JSON.stringify(datos.slice(0,5)) : "No hay registros en Supabase para esa consulta.";
+  const prompt = `Eres IA Técnico, asistente para técnicos de campo de POS.
+Responde claro, corto y práctico, en español de Perú.
+Usa SOLO los datos de Supabase. Si no hay datos, dilo y sugiere qué revisar.
+DATOS SUPABASE (tabla soluciones): ${contexto}
+PREGUNTA DEL TÉCNICO: ${pregunta}
+Responde con: Entidad, Modelo POS, Error, Solución paso a paso, y Observaciones si hay.`;
+  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_KEY}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+  });
+  const data = await res.json();
+  if(data.error) return "Error de Gemini: " + data.error.message;
+  return data.candidates[0].content.parts[0].text;
+}
+async function responderIA(pregunta){
+  const cargando = agregar("Buscando en tus registros...", 'bot');
+  const datos = await buscarEnSupabase(pregunta);
+  const respuesta = await preguntarGemini(pregunta, datos);
+  cargando.remove();
+  agregar(respuesta, 'bot');
+  hablar(respuesta);
+}
 function enviar(){
   const inp = document.getElementById('input');
   if(!inp.value.trim()) return;
   agregar(inp.value, 'user');
   let texto = inp.value; inp.value = "";
-  setTimeout(()=> responderIA(texto), 500);
+  responderIA(texto);
 }
-
 function escuchar(){
   const rec = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-  rec.lang = 'es-PE';
-  rec.start();
+  rec.lang = 'es-PE'; rec.start();
   rec.onresult = e => {
     document.getElementById('input').value = e.results[0][0].transcript;
     enviar();
   }
 }
-
-agregar("Hola, soy tu IA Técnico 📱 ¿Qué le pasó a tu celular?", 'bot');
+agregar("Hola técnico 🛠️ ¿Qué error tienes? Dime entidad, modelo POS o comercio y busco la solución en tus registros.", 'bot');
 </script>
 </body>
 </html>
