@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IA Técnico - Asistente</title>
+<style>
+body{margin:0;font-family:Arial;background:#0f172a;color:white;display:flex;flex-direction:column;height:100vh}
+header{padding:16px;text-align:center;background:#1e293b}
+header h2{margin:0} header p{margin:4px 0 0;color:#94a3b8;font-size:13px}
+#chat{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px}
+.msg{max-width:80%;padding:12px 14px;border-radius:16px;line-height:1.4;font-size:15px}
+.user{align-self:flex-end;background:#2563eb}
+.bot{align-self:flex-start;background:#334155}
+.controls{display:flex;gap:8px;padding:12px;background:#1e293b}
+input{flex:1;padding:12px;border-radius:20px;border:none;outline:none}
+button{padding:12px 14px;border-radius:50%;border:none;background:#2563eb;color:white;font-size:16px;cursor:pointer}
+.speak{font-size:11px;background:#475569;padding:5px 8px;border-radius:10px;margin-top:6px;display:inline-block;cursor:pointer}
+</style>
+</head>
+<body>
+<header><h2>📱 IA Técnico</h2><p>Reparación de celulares • En línea ahora</p></header>
+<div id="chat"></div>
+<div class="controls">
+<button onclick="escuchar()">🎤</button>
+<input id="input" placeholder="Escribe... Ej: Se me cayó mi celular" onkeypress="if(event.key==='Enter') enviar()">
+<button onclick="enviar()">➤</button>
+</div>
+
+<script>
+const chat = document.getElementById('chat');
+let vozActiva = true;
+
+function agregar(texto, tipo){
+  const div = document.createElement('div');
+  div.className = 'msg ' + tipo;
+  div.innerHTML = texto;
+  if(tipo==='bot'){
+    div.innerHTML += `<br><span class="speak" onclick="hablar('${texto.replace(/'/g,'')}')">🔊 Escuchar audio</span>`;
+  }
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+  return div;
+}
+
+function hablar(texto){
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(texto);
+  u.lang = 'es-PE'; u.rate = 1; u.pitch = 1;
+  speechSynthesis.speak(u);
+}
+
+function responderIA(pregunta){
+  const p = pregunta.toLowerCase();
+  let r = "";
+  if(p.includes("hola") || p.includes("buenas")) r = "Hola, soy IA Técnico. ¿Qué le pasó a tu celular? ¿Se cayó, no prende o se rompió la pantalla?";
+  else if(p.includes("pantalla") || p.includes("roto") || p.includes("quebrado")) r = "La pantalla la reparamos desde 80 soles dependiendo el modelo. ¿Qué modelo es tu celular? La revisión es gratis.";
+  else if(p.includes("agua") || p.includes("mojo") || p.includes("cayo")) r = "Si se cayó al agua, no lo intentes prender. Tráelo lo antes posible, lo limpiamos internamente. ¿Qué modelo es?";
+  else if(p.includes("no prende") || p.includes("bateria")) r = "Puede ser batería o placa. La revisión es gratis y te digo el precio exacto en 15 minutos. ¿Qué modelo tienes?";
+  else if(p.includes("precio") || p.includes("cuanto")) r = "Depende del modelo, pero la revisión es gratis. Dime qué modelo es y te doy precio exacto al toque.";
+  else if(p.includes("donde") || p.includes("ubicacion") || p.includes("direccion")) r = "Estamos en Lima. Puedes venir hoy mismo, atendemos de 10am a 8pm. ¿Quieres que te agende una cita?";
+  else r = "Entendido. Cuéntame qué modelo es tu celular y qué le pasó, y te digo precio y tiempo de reparación al toque.";
+  agregar(r, 'bot');
+  if(vozActiva) hablar(r);
+}
+
+function enviar(){
+  const inp = document.getElementById('input');
+  if(!inp.value.trim()) return;
+  agregar(inp.value, 'user');
+  let texto = inp.value; inp.value = "";
+  setTimeout(()=> responderIA(texto), 500);
+}
+
+function escuchar(){
+  const rec = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+  rec.lang = 'es-PE';
+  rec.start();
+  rec.onresult = e => {
+    document.getElementById('input').value = e.results[0][0].transcript;
+    enviar();
+  }
+}
+
+agregar("Hola, soy tu IA Técnico 📱 ¿Qué le pasó a tu celular?", 'bot');
+</script>
+</body>
+</html>
