@@ -27,7 +27,20 @@ button{padding:12px 14px;border-radius:50%;border:none;background:#2563eb;color:
 <button onclick="enviar()">➤</button>
 </div>
 <script>
-const GEMINI_KEY = "AQ.Ab8RN6LNqqPi9iFyt2bDag9P5qhf4aZdEPFcJCowVrciXW20FQ";
+
+  // BORRA ESTO:
+// const GEMINI_KEY = "AQ..."
+
+async function preguntarGemini(pregunta, datos){
+  const res = await fetch(`/api/chat`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ pregunta, datos })
+  });
+  const data = await res.json();
+  if(data.error) return "Error de Gemini: " + data.error.message;
+  return data.candidates[0].content.parts[0].text;
+}
 const SUPABASE_URL = "https://nlynbrrrybgufwmcjhmu.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_JtRhd51yYCWEEfHCs50Cjw_RSS-_kAu";
 
