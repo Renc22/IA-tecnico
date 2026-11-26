@@ -1,4 +1,6 @@
 Flask
 requests
 gTTS
-google-generativeai
+google-genai
+supabase
+flask
