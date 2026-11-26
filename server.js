@@ -28,19 +28,24 @@ DATOS SUPABASE (tabla soluciones): ${contexto}
 PREGUNTA DEL TÉCNICO: ${pregunta}
 Responde con: Entidad, Modelo POS, Error, Solución paso a paso, y Observaciones si hay.`;
 
-    const r = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }]
-        })
-      }
-    );
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey}`;
+    const opciones = {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }]
+      })
+    };
 
+    let r = await fetch(url, opciones);
+    let data = await r.json();
 
-    const data = await r.json();
+    if (!r.ok && /high demand|overloaded|unavailable/i.test(data?.error?.message || "")) {
+      await new Promise(resolve => setTimeout(resolve, 1200));
+      r = await fetch(url, opciones);
+      data = await r.json();
+    }
+
     if (!r.ok) {
       return res.status(r.status).json({
         error: { message: data?.error?.message || "Error al consultar Gemini" }
