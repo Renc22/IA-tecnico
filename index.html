@@ -66,16 +66,34 @@ function hablar(texto){
   u.lang = 'es-PE'; u.rate = 1;
   speechSynthesis.speak(u);
 }
+
 async function buscarEnSupabase(pregunta){
-  const q = encodeURIComponent(pregunta);
-  const url = `${SUPABASE_URL}/rest/v1/soluciones?select=*&or=(entidad.ilike.*${q}*,error.ilike.*${q}*,modelo_pos.ilike.*${q}*,comercio.ilike.*${q}*,cobertura.ilike.*${q}*,solucion.ilike.*${q}*)&limit=10&order=fecha.desc`;
   try{
-    const res = await fetch(url, { headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` } });
+    // Busca simple, sin filtros raros que traban Supabase
+    const url = `${SUPABASE_URL}/rest/v1/soluciones?select=*&limit=20&order=fecha.desc`;
+    const res = await fetch(url, { 
+      headers: { 
+        apikey: SUPABASE_ANON_KEY, 
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}` 
+      } 
+    });
     const datos = await res.json();
+    console.log("Datos Supabase:", datos);
     if(!Array.isArray(datos)) return [];
-    return datos;
-  }catch(e){ return []; }
-}
+    // Filtra en el celular, no en Supabase
+    const q = pregunta.toLowerCase();
+    const palabras = q.split(" ").filter(p => p.length > 3);
+    const filtrados = datos.filter(d => {
+      const texto = JSON.stringify(d).toLowerCase();
+      return palabras.some(p => texto.includes(p));
+    });
+    return filtrados.length ? filtrados : datos.slice(0,3);
+  }catch(e){ 
+    console.log("Error Supabase", e);
+    return []; 
+  }
+    }
+  
 async function preguntarGemini(pregunta, datos){
   const contexto = datos.length ? JSON.stringify(datos.slice(0,5)) : "No hay registros en Supabase para esa consulta.";
   const prompt = `Eres IA Técnico, asistente para técnicos de campo de POS.
