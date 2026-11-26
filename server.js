@@ -6,8 +6,7 @@ app.use(express.json());
 app.use(express.static(__dirname));
 
 const MODELOS = [
-  "gemini-3.8-flash",
-  "gemini-2.5-flash"
+  "gemini-3.8-flash"
 ];
 
 async function consultarGeminiConReintento(apiKey, prompt) {
@@ -21,7 +20,7 @@ async function consultarGeminiConReintento(apiKey, prompt) {
       })
     };
 
-    for (let intento = 1; intento <= 2; intento++) {
+    for (let intento = 1; intento <= 4; intento++) {
       const r = await fetch(url, opciones);
       const data = await r.json();
 
@@ -39,7 +38,7 @@ async function consultarGeminiConReintento(apiKey, prompt) {
         return { ok: false, status: r.status, data };
       }
 
-      if (intento < 2) {
+      if (intento < 4) {
         await new Promise(resolve => setTimeout(resolve, intento * 1500));
       }
     }
@@ -50,7 +49,7 @@ async function consultarGeminiConReintento(apiKey, prompt) {
     status: 503,
     data: {
       error: {
-        message: "Los modelos de Gemini están con alta demanda en este momento. Intenta de nuevo en unos segundos."
+        message: "Gemini está con alta demanda en este momento. Intenta de nuevo en unos segundos."
       }
     }
   };
