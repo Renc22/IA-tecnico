@@ -412,6 +412,18 @@
       <h1>¿En qué te ayudo?</h1>
       <p>Selecciona, escribe o envíame un audio</p>
       <div class="suggestions">
+        <button class="suggestion-card" onclick="usarSugerencia('Carga')">
+          <strong>Cargas de POS</strong>
+          Escríbeme: "Carga" + Modelo de POS
+        </button>
+        <button class="suggestion-card" onclick="usarSugerencia('Plantilla')">
+          <strong>Plantilla y fotos de liquidación</strong>
+          Escríbeme: "Plantilla" + Tipo
+        </button>
+        <button class="suggestion-card" onclick="usarSugerencia('Release')">
+          <strong>Reléase actual</strong>
+          Escríbeme: "Release" + Comercio
+        </button>
         <button class="suggestion-card" onclick="usarSugerencia('Error')">
           <strong>Problema en un POS</strong>
           Escríbeme: "Error" + mensaje del problema
@@ -419,14 +431,6 @@
         <button class="suggestion-card" onclick="usarSugerencia('Guia')">
           <strong>Guía de configuración</strong>
           Escríbeme: "Guía" + Comercio + modelo POS
-        </button>
-        <button class="suggestion-card" onclick="usarSugerencia('Release')">
-          <strong>Reléase actual</strong>
-          Escríbeme: "Release" + Comercio
-        </button>
-        <button class="suggestion-card" onclick="usarSugerencia('Plantilla')">
-          <strong>Plantilla de liquidación</strong>
-          Escríbeme: "Plantilla" + Tipo
         </button>
       </div>
     </div>
