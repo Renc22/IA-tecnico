@@ -412,25 +412,25 @@
       <h1>¿En qué te ayudo?</h1>
       <p>Selecciona, escribe o envíame un audio</p>
       <div class="suggestions">
-        <button class="suggestion-card" onclick="usarSugerencia('Carga')">
-          <strong>Cargas de POS</strong>
-          Escríbeme: "Carga" + Modelo de POS
+        <button class="suggestion-card" onclick="prepararBoton('carga')">
+          <strong>Carga de POS</strong>
+          Escríbeme: "Carga " + comercio o modelo POS
         </button>
-        <button class="suggestion-card" onclick="usarSugerencia('Plantilla')">
+        <button class="suggestion-card" onclick="prepararBoton('plantilla')">
           <strong>Plantilla y fotos de liquidación</strong>
-          Escríbeme: "Plantilla" + Tipo
+          Escríbeme: "Plantilla " + tipo y entidad
         </button>
-        <button class="suggestion-card" onclick="usarSugerencia('Release')">
+        <button class="suggestion-card" onclick="prepararBoton('release')">
           <strong>Reléase actual</strong>
-          Escríbeme: "Release" + Comercio
+          Escríbeme: "Reléase " + comercio
         </button>
-        <button class="suggestion-card" onclick="usarSugerencia('Error')">
+        <button class="suggestion-card" onclick="prepararBoton('problema')">
           <strong>Problema en un POS</strong>
-          Escríbeme: "Error" + mensaje del problema
+          Escríbeme: "Problema" + falla del POS
         </button>
-        <button class="suggestion-card" onclick="usarSugerencia('Guia')">
+        <button class="suggestion-card" onclick="prepararBoton('guia')">
           <strong>Guía de configuración</strong>
-          Escríbeme: "Guía" + Comercio + modelo POS
+          Escríbeme: "Guia " + comercio o modelo POS
         </button>
       </div>
     </div>
@@ -464,6 +464,29 @@ const SUPABASE_ANON_KEY = "sb_publishable_JtRhd51yYCWEEfHCs50Cjw_RSS-_kAu";
 const chat = document.getElementById('chat');
 const chatScroll = document.getElementById('chat-scroll');
 
+const ACCIONES_BOTONES = {
+  carga: {
+    texto: "Carga ",
+    audio: "ahora ingresa el nombre del comercio o modelo de POS del cual necesitas la carga"
+  },
+  plantilla: {
+    texto: "Plantilla ",
+    audio: "ahora ingresa el tipo si es averia, instalación, etc y luego ingresa la entidad si es Niubiz o Vende Mas"
+  },
+  release: {
+    texto: "Reléase ",
+    audio: "ahora ingresa el nombre del comercio que necesitas su Reléase"
+  },
+  problema: {
+    texto: "Problema",
+    audio: "ahora ingresa en una palabra o frase, el que tienes con el POS"
+  },
+  guia: {
+    texto: "Guia ",
+    audio: "ahora ingresa el nombre del comercio o modelo de POS del cual necesitas la guia"
+  }
+};
+
 function autoAltura(el) {
   el.style.height = 'auto';
   el.style.height = Math.min(el.scrollHeight, 140) + 'px';
@@ -489,9 +512,19 @@ function limpiarChat() {
   if (welcome) welcome.style.display = 'flex';
 }
 
-function usarSugerencia(texto) {
-  document.getElementById('input').value = texto;
-  enviar();
+function prepararBoton(clave) {
+  const config = ACCIONES_BOTONES[clave];
+  if (!config) return;
+
+  const inp = document.getElementById('input');
+  inp.value = config.texto;
+  autoAltura(inp);
+  inp.focus();
+
+  const largo = inp.value.length;
+  inp.setSelectionRange(largo, largo);
+
+  hablar(config.audio);
 }
 
 function esSaludoOCortesia(texto) {
