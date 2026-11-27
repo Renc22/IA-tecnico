@@ -447,7 +447,7 @@
       <div class="suggestions">
         <button type="button" class="suggestion-card" onclick="prepararBoton('carga')">
           <strong>Carga de POS</strong>
-          Escríbeme: "Versión " + Comercio + Modelo POS
+          Escríbeme: "Carga " + Comercio + Modelo POS
         </button>
         <button type="button" class="suggestion-card" onclick="prepararBoton('plantilla')">
           <strong>Plantilla y fotos de liquidación</strong>
@@ -500,32 +500,41 @@
 const SUPABASE_URL = "https://nlynbrrrybgufwmcjhmu.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_JtRhd51yYCWEEfHCs50Cjw_RSS-_kAu";
 
+const TEXTO_BIENVENIDA = "Hola soy la IA de Unix, en qué te ayudo?";
+const TEXTO_BUSCANDO = "un momento";
+
 const chat = document.getElementById('chat');
 const chatScroll = document.getElementById('chat-scroll');
 const promptHint = document.getElementById('prompt-hint');
 const audioBlockedNotice = document.getElementById('audio-blocked-notice');
 
 let audioCheckTimer = null;
+let bienvenidaReproducida = false;
 
 const ACCIONES_BOTONES = {
   carga: {
     texto: "Carga ",
+    aviso: "Ejemplo: Carga A910 Ripley",
     audio: "ya coloqué el indicador ahora ingresa el nombre del comercio o modelo de POS del cual necesitas la carga"
   },
   plantilla: {
     texto: "Plantilla ",
+    aviso: "Ejemplo: Plantilla Averia Niubiz",
     audio: "ya coloqué el indicador ahora ingresa el tipo si es averia, instalación, etc y luego ingresa la entidad si es Niubiz o Vende Más"
   },
   release: {
     texto: "Reléase ",
+    aviso: "Ejemplo: Versión Lane7000 Saga",
     audio: "ya coloqué el indicador ahora ingresa el nombre del comercio que necesitas su versión a instalar"
   },
   problema: {
     texto: "Problema ",
+    aviso: "Ejemplo: Problema Código 89",
     audio: "ya coloqué el indicador ahora ingresa en una palabra, el problema que tienes con el POS"
   },
   guia: {
     texto: "Guia ",
+    aviso: "Guía Aruma P10",
     audio: "ya coloqué el indicador ahora ingresa el nombre del comercio o modelo de POS del cual necesitas la guia"
   }
 };
@@ -539,8 +548,8 @@ function ocultarAvisoAudioBloqueado() {
   audioBlockedNotice.style.display = "none";
 }
 
-function mostrarAvisoIndicacion(textoAudio) {
-  promptHint.textContent = textoAudio;
+function mostrarAvisoIndicacion(textoAviso) {
+  promptHint.textContent = textoAviso;
   promptHint.style.display = "block";
 }
 
@@ -592,7 +601,7 @@ function prepararBoton(clave) {
   const largo = inp.value.length;
   inp.setSelectionRange(largo, largo);
 
-  mostrarAvisoIndicacion(config.audio);
+  mostrarAvisoIndicacion(config.aviso);
   hablar(config.audio);
 }
 
@@ -672,7 +681,8 @@ function agregarCargando() {
   return row;
 }
 
-function hablar(texto) {
+function hablar(texto, opciones = {}) {
+  const esAutoBienvenida = Boolean(opciones.esBienvenida);
   clearTimeout(audioCheckTimer);
   ocultarAvisoAudioBloqueado();
 
@@ -692,6 +702,9 @@ function hablar(texto) {
   u.onstart = () => {
     inicioDetectado = true;
     ocultarAvisoAudioBloqueado();
+    if (esAutoBienvenida) {
+      bienvenidaReproducida = true;
+    }
   };
 
   u.onerror = (e) => {
@@ -714,6 +727,21 @@ function hablar(texto) {
     }
   }, 450);
 }
+
+window.addEventListener("DOMContentLoaded", () => {
+  hablar(TEXTO_BIENVENIDA, { esBienvenida: true });
+
+  const desbloquearBienvenida = () => {
+    if (!bienvenidaReproducida) {
+      hablar(TEXTO_BIENVENIDA, { esBienvenida: true });
+    }
+    document.removeEventListener("pointerdown", desbloquearBienvenida);
+    document.removeEventListener("keydown", desbloquearBienvenida);
+  };
+
+  document.addEventListener("pointerdown", desbloquearBienvenida, { once: true });
+  document.addEventListener("keydown", desbloquearBienvenida, { once: true });
+});
 
 async function buscarEnSupabase(pregunta) {
   try {
@@ -794,6 +822,7 @@ function enviar() {
 
   ocultarAvisoIndicacion();
   ocultarAvisoAudioBloqueado();
+  hablar(TEXTO_BUSCANDO);
 
   agregar(texto, 'user');
   inp.value = "";
@@ -822,4 +851,3 @@ function escuchar() {
 </script>
 </body>
 </html>
- 
