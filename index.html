@@ -150,24 +150,6 @@
     gap: 14px;
   }
 
-  .welcome-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-  }
-
-  .welcome-icon img {
-    width: 80%;
-    height: 80%;
-    object-fit: contain;
-  }
-
   #welcome-screen h1 {
     font-size: 22px;
     font-weight: 600;
@@ -234,26 +216,6 @@
   .msg-row.bot {
     justify-content: flex-start;
     align-items: flex-start;
-  }
-
-  .bot-avatar {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    flex-shrink: 0;
-    margin-top: 2px;
-  }
-
-  .bot-avatar img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
   }
 
   .msg-content-wrap {
@@ -448,19 +410,19 @@
   <div class="chat-container" id="chat">
     <div id="welcome-screen">
       <h1>¿En qué te ayudo?</h1>
-      <p>Selecciona, escríbe o envíame un audio</p>
+      <p>Selecciona, escribe o envíame un audio</p>
       <div class="suggestions">
         <button class="suggestion-card" onclick="usarSugerencia('Error')">
           <strong>Problema en un POS</strong>
-          Escríbeme: Error + mensaje del problema 
+          Escríbeme: Error + mensaje del problema
         </button>
         <button class="suggestion-card" onclick="usarSugerencia('Guia')">
-          <strong>Guia de Configuración</strong>
-          Escríbeme: Guia + Comercio + modelo POS
+          <strong>Guía de Configuración</strong>
+          Escríbeme: Guía + Comercio + modelo POS
         </button>
         <button class="suggestion-card" onclick="usarSugerencia('Release')">
-          <strong>Reléase actual</strong>
-          Escríbeme: Reléase + Comercio
+          <strong>Release actual</strong>
+          Escríbeme: Release + Comercio
         </button>
         <button class="suggestion-card" onclick="usarSugerencia('Plantilla')">
           <strong>Plantilla de liquidación</strong>
@@ -473,7 +435,7 @@
 
 <div class="composer-area">
   <div class="composer-box">
-    <textarea id="input" rows="1" placeholder="Escribe aqui" oninput="autoAltura(this)" onkeydown="manejarTecla(event)"></textarea>
+    <textarea id="input" rows="1" placeholder="Escribe aquí" oninput="autoAltura(this)" onkeydown="manejarTecla(event)"></textarea>
     <button id="btn-mic" class="icon-btn" onclick="escuchar()" title="Dictar por voz">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
@@ -528,18 +490,27 @@ function usarSugerencia(texto) {
   enviar();
 }
 
+function esSaludoOCortesia(texto) {
+  const limpio = texto
+    .toLowerCase()
+    .trim()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[¡!¿?.,]/g, "");
+
+  const saludos = [
+    "hola", "holi", "buenas", "buenos dias", "buen dia",
+    "buenas tardes", "buenas noches", "que tal", "como estas",
+    "gracias", "muchas gracias", "ok", "vale", "listo", "perfecto"
+  ];
+  return saludos.includes(limpio);
+}
+
 function agregar(texto, tipo) {
   ocultarBienvenida();
 
   const row = document.createElement('div');
   row.className = 'msg-row ' + tipo;
-
-  if (tipo === 'bot') {
-    const avatar = document.createElement('div');
-    avatar.className = 'bot-avatar';
-    avatar.innerHTML = `<img src="" alt="U">`;
-    row.appendChild(avatar);
-  }
 
   const wrap = document.createElement('div');
   wrap.className = 'msg-content-wrap';
@@ -583,15 +554,10 @@ function agregarCargando() {
   const row = document.createElement('div');
   row.className = 'msg-row bot';
 
-  const avatar = document.createElement('div');
-  avatar.className = 'bot-avatar';
-  avatar.innerHTML = `<img src="" alt="U">`;
-
   const wrap = document.createElement('div');
   wrap.className = 'msg-content-wrap';
-  wrap.innerHTML = `<div class="typing-dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span></span></div>`;
+  wrap.innerHTML = `<div class="typing-dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>`;
 
-  row.appendChild(avatar);
   row.appendChild(wrap);
   chat.appendChild(row);
   chatScroll.scrollTop = chatScroll.scrollHeight;
@@ -608,7 +574,7 @@ function hablar(texto) {
 
 async function buscarEnSupabase(pregunta) {
   try {
-    const url = `${SUPABASE_URL}/rest/v1/soluciones?select=*&limit=20`;
+    const url = `${SUPABASE_URL}/rest/v1/soluciones?select=*&limit=30`;
     const res = await fetch(url, {
       headers: {
         apikey: SUPABASE_ANON_KEY,
@@ -617,13 +583,26 @@ async function buscarEnSupabase(pregunta) {
     });
     const datos = await res.json();
     if (!Array.isArray(datos)) return [];
-    const q = pregunta.toLowerCase();
-    const palabras = q.split(/\s+/).filter(p => p.length > 2);
-    const filtrados = datos.filter(d => {
-      const texto = JSON.stringify(d).toLowerCase();
+
+    const q = pregunta
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+
+    const palabras = q
+      .replace(/[^a-z0-9\s]/g, " ")
+      .split(/\s+/)
+      .filter(p => p.length >= 2);
+
+    if (!palabras.length) return [];
+
+    return datos.filter(d => {
+      const texto = JSON.stringify(d)
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
       return palabras.some(p => texto.includes(p));
-    });
-    return filtrados.length ? filtrados : datos.slice(0, 3);
+    }).slice(0, 5);
   } catch (e) {
     console.log("Error Supabase:", e);
     return [];
@@ -644,6 +623,14 @@ async function preguntarIA(pregunta, datos) {
 }
 
 async function responderIA(pregunta) {
+  if (esSaludoOCortesia(pregunta)) {
+    agregar(
+      "¡Hola! Indícame el error, entidad, comercio, modelo POS, guía, release o plantilla que necesitas revisar.",
+      "bot"
+    );
+    return;
+  }
+
   const cargando = agregarCargando();
   try {
     const datos = await buscarEnSupabase(pregunta);
