@@ -104,16 +104,18 @@
     padding: 6px 10px;
     border-radius: 8px;
     cursor: pointer;
-    transition: all 0.15s ease;
     display: flex;
     align-items: center;
     gap: 5px;
+    outline: none;
   }
 
-  .btn-new:hover {
-    background: var(--bg-surface);
-    color: var(--text-primary);
-    border-color: #3f3f46;
+  .btn-new:hover,
+  .btn-new:active,
+  .btn-new:focus {
+    background: transparent;
+    color: var(--text-secondary);
+    border-color: var(--border-subtle);
   }
 
   #chat-scroll {
@@ -305,9 +307,38 @@
     flex-shrink: 0;
   }
 
-  .composer-box {
+  .composer-stack {
     max-width: 760px;
     margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .prompt-hint {
+    display: none;
+    background: var(--bg-elevated);
+    border: 1px solid rgba(99, 102, 241, 0.35);
+    color: #e4e4e7;
+    font-size: 12.5px;
+    line-height: 1.4;
+    padding: 8px 12px;
+    border-radius: 12px;
+  }
+
+  .audio-blocked-notice {
+    display: none;
+    background: rgba(245, 158, 11, 0.12);
+    border: 1px solid rgba(245, 158, 11, 0.38);
+    color: #fcd34d;
+    font-size: 11.5px;
+    line-height: 1.35;
+    padding: 6px 12px;
+    border-radius: 10px;
+  }
+
+  .composer-box {
+    width: 100%;
     background: var(--bg-surface);
     border: 1px solid var(--border-subtle);
     border-radius: 22px;
@@ -401,8 +432,8 @@
       <span class="model-pill">OpenRouter • Supabase</span>
     </div>
   </div>
-  <button class="btn-new" onclick="limpiarChat()" title="Nueva consulta">
-    <span><-</span> Página principal 
+  <button type="button" class="btn-new" onclick="limpiarChat()" title="Nueva consulta">
+    <span><-</span> Página principal
   </button>
 </header>
 
@@ -412,23 +443,23 @@
       <h1>¿En qué te ayudo?</h1>
       <p>Selecciona, escribe o envíame un audio</p>
       <div class="suggestions">
-        <button class="suggestion-card" onclick="prepararBoton('carga')">
+        <button type="button" class="suggestion-card" onclick="prepararBoton('carga')">
           <strong>Carga de POS</strong>
           Escríbeme: "Carga " + comercio o modelo POS
         </button>
-        <button class="suggestion-card" onclick="prepararBoton('plantilla')">
+        <button type="button" class="suggestion-card" onclick="prepararBoton('plantilla')">
           <strong>Plantilla y fotos de liquidación</strong>
           Escríbeme: "Plantilla " + tipo y entidad
         </button>
-        <button class="suggestion-card" onclick="prepararBoton('release')">
+        <button type="button" class="suggestion-card" onclick="prepararBoton('release')">
           <strong>Reléase actual</strong>
           Escríbeme: "Reléase " + comercio
         </button>
-        <button class="suggestion-card" onclick="prepararBoton('problema')">
+        <button type="button" class="suggestion-card" onclick="prepararBoton('problema')">
           <strong>Problema en un POS</strong>
           Escríbeme: "Problema" + falla del POS
         </button>
-        <button class="suggestion-card" onclick="prepararBoton('guia')">
+        <button type="button" class="suggestion-card" onclick="prepararBoton('guia')">
           <strong>Guía de configuración</strong>
           Escríbeme: "Guia " + comercio o modelo POS
         </button>
@@ -438,21 +469,27 @@
 </div>
 
 <div class="composer-area">
-  <div class="composer-box">
-    <textarea id="input" rows="1" placeholder="Escribe aquí" oninput="autoAltura(this)" onkeydown="manejarTecla(event)"></textarea>
-    <button id="btn-mic" class="icon-btn" onclick="escuchar()" title="Dictar por voz">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
-        <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-        <line x1="12" x2="12" y1="19" y2="22"/>
-      </svg>
-    </button>
-    <button id="btn-send" class="icon-btn" onclick="enviar()" title="Enviar consulta">
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M5 12h14"/>
-        <path d="m12 5 7 7-7 7"/>
-      </svg>
-    </button>
+  <div class="composer-stack">
+    <div id="audio-blocked-notice" class="audio-blocked-notice">
+      El navegador bloqueó o no pudo reproducir el audio automáticamente.
+    </div>
+    <div id="prompt-hint" class="prompt-hint"></div>
+    <div class="composer-box">
+      <textarea id="input" rows="1" placeholder="Escribe aquí" oninput="autoAltura(this)" onkeydown="manejarTecla(event)"></textarea>
+      <button id="btn-mic" type="button" class="icon-btn" onclick="escuchar()" title="Dictar por voz">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+          <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+          <line x1="12" x2="12" y1="19" y2="22"/>
+        </svg>
+      </button>
+      <button id="btn-send" type="button" class="icon-btn" onclick="enviar()" title="Buscar">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14"/>
+          <path d="m12 5 7 7-7 7"/>
+        </svg>
+      </button>
+    </div>
   </div>
   <div class="footer-note">Respuestas basadas en la base de soluciones Supabase</div>
 </div>
@@ -463,6 +500,10 @@ const SUPABASE_ANON_KEY = "sb_publishable_JtRhd51yYCWEEfHCs50Cjw_RSS-_kAu";
 
 const chat = document.getElementById('chat');
 const chatScroll = document.getElementById('chat-scroll');
+const promptHint = document.getElementById('prompt-hint');
+const audioBlockedNotice = document.getElementById('audio-blocked-notice');
+
+let audioCheckTimer = null;
 
 const ACCIONES_BOTONES = {
   carga: {
@@ -487,6 +528,25 @@ const ACCIONES_BOTONES = {
   }
 };
 
+function mostrarAvisoAudioBloqueado(mensaje = "El navegador bloqueó o no pudo reproducir el audio automáticamente.") {
+  audioBlockedNotice.textContent = mensaje;
+  audioBlockedNotice.style.display = "block";
+}
+
+function ocultarAvisoAudioBloqueado() {
+  audioBlockedNotice.style.display = "none";
+}
+
+function mostrarAvisoIndicacion(textoAudio) {
+  promptHint.textContent = textoAudio;
+  promptHint.style.display = "block";
+}
+
+function ocultarAvisoIndicacion() {
+  promptHint.style.display = "none";
+  promptHint.textContent = "";
+}
+
 function autoAltura(el) {
   el.style.height = 'auto';
   el.style.height = Math.min(el.scrollHeight, 140) + 'px';
@@ -505,7 +565,13 @@ function ocultarBienvenida() {
 }
 
 function limpiarChat() {
-  speechSynthesis.cancel();
+  if ("speechSynthesis" in window) {
+    speechSynthesis.cancel();
+  }
+  clearTimeout(audioCheckTimer);
+  ocultarAvisoIndicacion();
+  ocultarAvisoAudioBloqueado();
+
   const filas = chat.querySelectorAll('.msg-row');
   filas.forEach(f => f.remove());
   const welcome = document.getElementById('welcome-screen');
@@ -524,6 +590,7 @@ function prepararBoton(clave) {
   const largo = inp.value.length;
   inp.setSelectionRange(largo, largo);
 
+  mostrarAvisoIndicacion(config.audio);
   hablar(config.audio);
 }
 
@@ -562,11 +629,13 @@ function agregar(texto, tipo) {
     actions.className = 'msg-actions';
 
     const btnAudio = document.createElement('button');
+    btnAudio.type = 'button';
     btnAudio.className = 'action-btn';
     btnAudio.textContent = '🔊 Escuchar';
     btnAudio.onclick = () => hablar(texto);
 
     const btnCopiar = document.createElement('button');
+    btnCopiar.type = 'button';
     btnCopiar.className = 'action-btn';
     btnCopiar.textContent = '📋 Copiar';
     btnCopiar.onclick = () => {
@@ -602,11 +671,46 @@ function agregarCargando() {
 }
 
 function hablar(texto) {
+  clearTimeout(audioCheckTimer);
+  ocultarAvisoAudioBloqueado();
+
+  if (!("speechSynthesis" in window)) {
+    mostrarAvisoAudioBloqueado("Este navegador no soporta reproducción de audio.");
+    return;
+  }
+
   speechSynthesis.cancel();
+
   const u = new SpeechSynthesisUtterance(texto);
   u.lang = 'es-PE';
   u.rate = 1;
-  speechSynthesis.speak(u);
+
+  let inicioDetectado = false;
+
+  u.onstart = () => {
+    inicioDetectado = true;
+    ocultarAvisoAudioBloqueado();
+  };
+
+  u.onerror = (e) => {
+    if (!inicioDetectado) {
+      const detalle = e?.error ? ` (${e.error})` : "";
+      mostrarAvisoAudioBloqueado(`Audio bloqueado o no disponible${detalle}.`);
+    }
+  };
+
+  try {
+    speechSynthesis.speak(u);
+  } catch (err) {
+    mostrarAvisoAudioBloqueado("El navegador bloqueó la reproducción de audio.");
+    return;
+  }
+
+  audioCheckTimer = setTimeout(() => {
+    if (!inicioDetectado && !speechSynthesis.speaking && !speechSynthesis.pending) {
+      mostrarAvisoAudioBloqueado("El navegador bloqueó o detuvo la reproducción de audio.");
+    }
+  }, 450);
 }
 
 async function buscarEnSupabase(pregunta) {
@@ -685,6 +789,10 @@ function enviar() {
   const inp = document.getElementById('input');
   if (!inp.value.trim()) return;
   const texto = inp.value.trim();
+
+  ocultarAvisoIndicacion();
+  ocultarAvisoAudioBloqueado();
+
   agregar(texto, 'user');
   inp.value = "";
   inp.style.height = 'auto';
