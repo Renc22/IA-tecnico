@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>IA Técnico • Soluciones POS</title>
+<title>IA - UNIX • Soluciones POS</title>
 <style>
   :root {
     --bg-main: #09090b;
@@ -36,7 +36,6 @@
     overflow: hidden;
   }
 
-  /* Top Bar estilo ChatGPT + OpenRouter */
   header {
     height: 56px;
     padding: 0 16px;
@@ -57,15 +56,21 @@
   }
 
   .brand-logo {
-    width: 30px;
-    height: 30px;
-    border-radius: 8px;
-    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-subtle);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 15px;
-    box-shadow: 0 0 16px var(--accent-glow);
+    overflow: hidden;
+  }
+
+  .brand-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 
   .brand-info {
@@ -75,8 +80,8 @@
   }
 
   .brand-title {
-    font-size: 15px;
-    font-weight: 600;
+    font-size: 16px;
+    font-weight: 700;
     letter-spacing: -0.01em;
     color: var(--text-primary);
   }
@@ -111,7 +116,6 @@
     border-color: #3f3f46;
   }
 
-  /* Área principal del chat */
   #chat-scroll {
     flex: 1;
     overflow-y: auto;
@@ -136,7 +140,6 @@
     gap: 20px;
   }
 
-  /* Pantalla de bienvenida estilo ChatGPT */
   #welcome-screen {
     display: flex;
     flex-direction: column;
@@ -150,13 +153,19 @@
   .welcome-icon {
     width: 48px;
     height: 48px;
-    border-radius: 14px;
-    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    border-radius: 50%;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 22px;
-    box-shadow: 0 8px 28px rgba(99, 102, 241, 0.25);
+    overflow: hidden;
+  }
+
+  .welcome-icon img {
+    width: 80%;
+    height: 80%;
+    object-fit: contain;
   }
 
   #welcome-screen h1 {
@@ -206,7 +215,6 @@
     transform: translateY(-1px);
   }
 
-  /* Filas de mensajes estilo ChatGPT */
   .msg-row {
     display: flex;
     width: 100%;
@@ -231,15 +239,21 @@
   .bot-avatar {
     width: 30px;
     height: 30px;
-    border-radius: 8px;
+    border-radius: 50%;
     background: var(--bg-surface);
     border: 1px solid var(--border-subtle);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 14px;
+    overflow: hidden;
     flex-shrink: 0;
     margin-top: 2px;
+  }
+
+  .bot-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 
   .msg-content-wrap {
@@ -298,7 +312,6 @@
     border-color: #3f3f46;
   }
 
-  /* Indicador de pensando */
   .typing-dots {
     display: inline-flex;
     align-items: center;
@@ -324,7 +337,6 @@
     40% { opacity: 1; transform: scale(1.1); }
   }
 
-  /* Caja de entrada flotante estilo ChatGPT */
   .composer-area {
     padding: 10px 16px 16px;
     background: linear-gradient(to top, var(--bg-main) 75%, transparent);
@@ -421,9 +433,9 @@
 
 <header>
   <div class="brand">
-    <div class="brand-logo">⚡</div>
+    <div class="brand-logo"><img src="logo.png" alt="UNIX Logo"></div>
     <div class="brand-info">
-      <span class="brand-title">IA Técnico</span>
+      <span class="brand-title">IA - UNIX</span>
       <span class="model-pill">OpenRouter • Supabase</span>
     </div>
   </div>
@@ -435,9 +447,9 @@
 <div id="chat-scroll">
   <div class="chat-container" id="chat">
     <div id="welcome-screen">
-      <div class="welcome-icon">🛠️</div>
+      <div class="welcome-icon"><img src="logo.png" alt="Logo UNIX Centrado"></div>
       <h1>¿Qué incidencia POS revisamos hoy?</h1>
-      <p>Consulta soluciones registradas por entidad, modelo de equipo, código de error o comercio.</p>
+      <p>Consulta soluciones en tu base de datos UNIX por entidad, equipo o error.</p>
       <div class="suggestions">
         <button class="suggestion-card" onclick="usarSugerencia('Error 89 en POS P10')">
           <strong>Error de comunicación</strong>
@@ -522,7 +534,7 @@ function agregar(texto, tipo) {
   if (tipo === 'bot') {
     const avatar = document.createElement('div');
     avatar.className = 'bot-avatar';
-    avatar.textContent = '⚡';
+    avatar.innerHTML = `<img src="logo.png" alt="U">`;
     row.appendChild(avatar);
   }
 
@@ -570,7 +582,7 @@ function agregarCargando() {
 
   const avatar = document.createElement('div');
   avatar.className = 'bot-avatar';
-  avatar.textContent = '⚡';
+  avatar.innerHTML = `<img src="logo.png" alt="U">`;
 
   const wrap = document.createElement('div');
   wrap.className = 'msg-content-wrap';
@@ -634,7 +646,6 @@ async function responderIA(pregunta) {
     const datos = await buscarEnSupabase(pregunta);
     const respuesta = await preguntarIA(pregunta, datos);
     agregar(respuesta, 'bot');
-    hablar(respuesta);
   } catch (err) {
     console.error("Error en responderIA:", err);
     agregar("No pude completar la consulta: " + err.message, 'bot');
