@@ -583,7 +583,9 @@ function agregarCargando() {
   const row = document.createElement('div');
   row.className = 'msg-row bot';
 
-  
+  const avatar = document.createElement('div');
+  avatar.className = 'bot-avatar';
+  avatar.innerHTML = `<img src="logo.jpg" alt="U">`;
 
   const wrap = document.createElement('div');
   wrap.className = 'msg-content-wrap';
