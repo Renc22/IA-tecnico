@@ -500,7 +500,6 @@
 const SUPABASE_URL = "https://nlynbrrrybgufwmcjhmu.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_JtRhd51yYCWEEfHCs50Cjw_RSS-_kAu";
 
-const TEXTO_BIENVENIDA = "Hola soy la IA de Unix, en qué te ayudo?";
 const TEXTO_BUSCANDO = "un momento";
 
 const chat = document.getElementById('chat');
@@ -509,33 +508,27 @@ const promptHint = document.getElementById('prompt-hint');
 const audioBlockedNotice = document.getElementById('audio-blocked-notice');
 
 let audioCheckTimer = null;
-let bienvenidaReproducida = false;
 
 const ACCIONES_BOTONES = {
   carga: {
     texto: "Carga ",
-    aviso: "Ejemplo: Carga A910 Ripley",
-    audio: "ya coloqué el indicador ahora ingresa el nombre del comercio o modelo de POS del cual necesitas la carga"
+    aviso: "Ejemplo: Carga A910 Ripley"
   },
   plantilla: {
     texto: "Plantilla ",
-    aviso: "Ejemplo: Plantilla Averia Niubiz",
-    audio: "ya coloqué el indicador ahora ingresa el tipo si es averia, instalación, etc y luego ingresa la entidad si es Niubiz o Vende Más"
+    aviso: "Ejemplo: Plantilla Averia Niubiz"
   },
   release: {
     texto: "Reléase ",
-    aviso: "Ejemplo: Versión Lane7000 Saga",
-    audio: "ya coloqué el indicador ahora ingresa el nombre del comercio que necesitas su versión a instalar"
+    aviso: "Ejemplo: Versión Lane7000 Saga"
   },
   problema: {
     texto: "Problema ",
-    aviso: "Ejemplo: Problema Código 89",
-    audio: "ya coloqué el indicador ahora ingresa en una palabra, el problema que tienes con el POS"
+    aviso: "Ejemplo: Problema Código 89"
   },
   guia: {
     texto: "Guia ",
-    aviso: "Guía Aruma P10",
-    audio: "ya coloqué el indicador ahora ingresa el nombre del comercio o modelo de POS del cual necesitas la guia"
+    aviso: "Guía Aruma P10"
   }
 };
 
@@ -593,6 +586,12 @@ function prepararBoton(clave) {
   const config = ACCIONES_BOTONES[clave];
   if (!config) return;
 
+  if ("speechSynthesis" in window) {
+    speechSynthesis.cancel();
+  }
+  clearTimeout(audioCheckTimer);
+  ocultarAvisoAudioBloqueado();
+
   const inp = document.getElementById('input');
   inp.value = config.texto;
   autoAltura(inp);
@@ -602,7 +601,6 @@ function prepararBoton(clave) {
   inp.setSelectionRange(largo, largo);
 
   mostrarAvisoIndicacion(config.aviso);
-  hablar(config.audio);
 }
 
 function esSaludoOCortesia(texto) {
@@ -639,12 +637,6 @@ function agregar(texto, tipo) {
     const actions = document.createElement('div');
     actions.className = 'msg-actions';
 
-    const btnAudio = document.createElement('button');
-    btnAudio.type = 'button';
-    btnAudio.className = 'action-btn';
-    btnAudio.textContent = '🔊 Escuchar';
-    btnAudio.onclick = () => hablar(texto);
-
     const btnCopiar = document.createElement('button');
     btnCopiar.type = 'button';
     btnCopiar.className = 'action-btn';
@@ -655,7 +647,6 @@ function agregar(texto, tipo) {
       setTimeout(() => btnCopiar.textContent = '📋 Copiar', 1500);
     };
 
-    actions.appendChild(btnAudio);
     actions.appendChild(btnCopiar);
     wrap.appendChild(actions);
   }
@@ -681,8 +672,7 @@ function agregarCargando() {
   return row;
 }
 
-function hablar(texto, opciones = {}) {
-  const esAutoBienvenida = Boolean(opciones.esBienvenida);
+function hablarUnMomento() {
   clearTimeout(audioCheckTimer);
   ocultarAvisoAudioBloqueado();
 
@@ -693,7 +683,7 @@ function hablar(texto, opciones = {}) {
 
   speechSynthesis.cancel();
 
-  const u = new SpeechSynthesisUtterance(texto);
+  const u = new SpeechSynthesisUtterance(TEXTO_BUSCANDO);
   u.lang = 'es-PE';
   u.rate = 1;
 
@@ -702,9 +692,6 @@ function hablar(texto, opciones = {}) {
   u.onstart = () => {
     inicioDetectado = true;
     ocultarAvisoAudioBloqueado();
-    if (esAutoBienvenida) {
-      bienvenidaReproducida = true;
-    }
   };
 
   u.onerror = (e) => {
@@ -727,21 +714,6 @@ function hablar(texto, opciones = {}) {
     }
   }, 450);
 }
-
-window.addEventListener("DOMContentLoaded", () => {
-  hablar(TEXTO_BIENVENIDA, { esBienvenida: true });
-
-  const desbloquearBienvenida = () => {
-    if (!bienvenidaReproducida) {
-      hablar(TEXTO_BIENVENIDA, { esBienvenida: true });
-    }
-    document.removeEventListener("pointerdown", desbloquearBienvenida);
-    document.removeEventListener("keydown", desbloquearBienvenida);
-  };
-
-  document.addEventListener("pointerdown", desbloquearBienvenida, { once: true });
-  document.addEventListener("keydown", desbloquearBienvenida, { once: true });
-});
 
 async function buscarEnSupabase(pregunta) {
   try {
@@ -822,7 +794,7 @@ function enviar() {
 
   ocultarAvisoIndicacion();
   ocultarAvisoAudioBloqueado();
-  hablar(TEXTO_BUSCANDO);
+  hablarUnMomento();
 
   agregar(texto, 'user');
   inp.value = "";
