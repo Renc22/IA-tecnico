@@ -18,7 +18,7 @@ async function consultarOpenRouter(apiKey, systemPrompt, userPrompt) {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${apiKey}`,
         "HTTP-Referer": "https://ia-tecnico-2.onrender.com",
-        "X-Title": "IA Tecnico POS"
+        "X-Title": "IA - UNIX"
       },
       body: JSON.stringify({
         model: modelo,
@@ -26,7 +26,7 @@ async function consultarOpenRouter(apiKey, systemPrompt, userPrompt) {
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt }
         ],
-        temperature: 0.2
+        temperature: 0.15
       })
     });
 
@@ -59,7 +59,7 @@ async function consultarOpenRouter(apiKey, systemPrompt, userPrompt) {
   return {
     ok: false,
     status: 503,
-    mensaje: "Los modelos gratuitos de OpenRouter están saturados ahora mismo. Intenta en unos segundos."
+    mensaje: "Sistemas saturados en este momento. Reintenta en unos segundos."
   };
 }
 
@@ -79,13 +79,19 @@ app.post('/api/chat', async (req, res) => {
       ? JSON.stringify(datos.slice(0, 5))
       : "No hay registros en Supabase para esa consulta.";
 
-    const systemPrompt = `Eres IA Técnico, asistente para técnicos de campo de POS en Perú.
-Responde claro, corto y práctico, en español de Perú.
-Usa SOLO los datos de Supabase. Si no hay datos, dilo y sugiere qué revisar.
-Responde con: Entidad, Modelo POS, Error, Solución paso a paso, y Observaciones si hay.`;
+    const systemPrompt = `Eres IA - UNIX, asistente técnico de POS en Perú.
+Tu respuesta debe ser directa, clara y corta, en español de Perú.
+Debes responder ÚNICAMENTE con estas dos secciones, omitiendo saludos, despedidas o introducciones:
 
-    const userPrompt = `DATOS SUPABASE (tabla soluciones): ${contexto}
-PREGUNTA DEL TÉCNICO: ${pregunta}`;
+💡 SOLUCIÓN PASO A PASO:
+[Escribe aquí la solución técnica de forma numerada o viñetas según los datos de Supabase]
+
+📝 OBSERVACIONES:
+[Escribe aquí las observaciones, advertencias o detalles clave que se deben tener en cuenta, o 'Ninguna' si no aplica]
+
+Usa SOLO los datos de Supabase proporcionados: ${contexto}. Si no hay datos, dilo brevemente sugiriendo qué revisar.`;
+
+    const userPrompt = `PREGUNTA DEL TÉCNICO: ${pregunta}`;
 
     const resultado = await consultarOpenRouter(apiKey, systemPrompt, userPrompt);
 
@@ -95,7 +101,6 @@ PREGUNTA DEL TÉCNICO: ${pregunta}`;
       });
     }
 
-    // Mantiene la misma estructura que espera index.html
     return res.json({
       candidates: [{ content: { parts: [{ text: resultado.texto }] } }]
     });
@@ -106,4 +111,3 @@ PREGUNTA DEL TÉCNICO: ${pregunta}`;
 
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => console.log(`Servidor listo en puerto ${PORT}`));
-    
