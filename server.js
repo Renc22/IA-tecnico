@@ -5,53 +5,61 @@ const app = express();
 app.use(express.json());
 app.use(express.static(__dirname));
 
-const MODELOS = [
-  "gemini-3.8-flash"
+const MODELOS_OPENROUTER = [
+  "google/gemma-4-26b-a4b-it:free",
+  "openrouter/free"
 ];
 
-async function consultarGeminiConReintento(apiKey, prompt) {
-  for (const modelo of MODELOS) {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent?key=${apiKey}`;
-    const opciones = {
+async function consultarOpenRouter(apiKey, systemPrompt, userPrompt) {
+  for (const modelo of MODELOS_OPENROUTER) {
+    const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`,
+        "HTTP-Referer": "https://ia-tecnico-2.onrender.com",
+        "X-Title": "IA Tecnico POS"
+      },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }]
+        model: modelo,
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt }
+        ],
+        temperature: 0.2
       })
-    };
+    });
 
-    for (let intento = 1; intento <= 4; intento++) {
-      const r = await fetch(url, opciones);
-      const data = await r.json();
+    const data = await r.json();
 
-      if (r.ok) {
-        return { ok: true, status: 200, data };
-      }
+    if (r.ok && data?.choices?.[0]?.message?.content) {
+      return {
+        ok: true,
+        status: 200,
+        texto: data.choices[0].message.content
+      };
+    }
 
-      const msg = data?.error?.message || "";
-      const esTemporal =
-        r.status === 429 ||
-        r.status === 503 ||
-        /high demand|overloaded|unavailable|quota/i.test(msg);
+    const msg = data?.error?.message || "";
+    const reintentable =
+      r.status === 429 ||
+      r.status === 502 ||
+      r.status === 503 ||
+      /rate|overloaded|unavailable|capacity|busy/i.test(msg);
 
-      if (!esTemporal) {
-        return { ok: false, status: r.status, data };
-      }
-
-      if (intento < 4) {
-        await new Promise(resolve => setTimeout(resolve, intento * 1500));
-      }
+    if (!reintentable) {
+      return {
+        ok: false,
+        status: r.status || 500,
+        mensaje: msg || "Error al consultar OpenRouter"
+      };
     }
   }
 
   return {
     ok: false,
     status: 503,
-    data: {
-      error: {
-        message: "Gemini está con alta demanda en este momento. Intenta de nuevo en unos segundos."
-      }
-    }
+    mensaje: "Los modelos gratuitos de OpenRouter están saturados ahora mismo. Intenta en unos segundos."
   };
 }
 
@@ -61,9 +69,9 @@ app.get('/', (req, res) => {
 
 app.post('/api/chat', async (req, res) => {
   try {
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = process.env.OPENROUTER_API_KEY;
     if (!apiKey) {
-      return res.status(500).json({ error: { message: "Falta GEMINI_API_KEY en Render" } });
+      return res.status(500).json({ error: { message: "Falta OPENROUTER_API_KEY en Render" } });
     }
 
     const { pregunta, datos } = req.body || {};
@@ -71,21 +79,26 @@ app.post('/api/chat', async (req, res) => {
       ? JSON.stringify(datos.slice(0, 5))
       : "No hay registros en Supabase para esa consulta.";
 
-    const prompt = `Eres IA Técnico, asistente para técnicos de campo de POS.
+    const systemPrompt = `Eres IA Técnico, asistente para técnicos de campo de POS en Perú.
 Responde claro, corto y práctico, en español de Perú.
 Usa SOLO los datos de Supabase. Si no hay datos, dilo y sugiere qué revisar.
-DATOS SUPABASE (tabla soluciones): ${contexto}
-PREGUNTA DEL TÉCNICO: ${pregunta}
 Responde con: Entidad, Modelo POS, Error, Solución paso a paso, y Observaciones si hay.`;
 
-    const resultado = await consultarGeminiConReintento(apiKey, prompt);
+    const userPrompt = `DATOS SUPABASE (tabla soluciones): ${contexto}
+PREGUNTA DEL TÉCNICO: ${pregunta}`;
+
+    const resultado = await consultarOpenRouter(apiKey, systemPrompt, userPrompt);
+
     if (!resultado.ok) {
       return res.status(resultado.status).json({
-        error: { message: resultado.data?.error?.message || "Error al consultar Gemini" }
+        error: { message: resultado.mensaje }
       });
     }
 
-    return res.json(resultado.data);
+    // Mantiene la misma estructura que espera index.html
+    return res.json({
+      candidates: [{ content: { parts: [{ text: resultado.texto }] } }]
+    });
   } catch (err) {
     return res.status(500).json({ error: { message: "Error servidor: " + err.message } });
   }
@@ -93,3 +106,4 @@ Responde con: Entidad, Modelo POS, Error, Solución paso a paso, y Observaciones
 
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => console.log(`Servidor listo en puerto ${PORT}`));
+    
