@@ -79,19 +79,23 @@ app.post('/api/chat', async (req, res) => {
       ? JSON.stringify(datos.slice(0, 5))
       : "No hay registros en Supabase para esa consulta.";
 
-    const systemPrompt = `Eres IA - UNIX, asistente técnico de POS en Perú.
-Tu respuesta debe ser directa, clara y corta, en español de Perú.
-Debes responder ÚNICAMENTE con estas dos secciones, omitiendo saludos, despedidas o introducciones:
+    const systemPrompt = `Eres IA - UNIX, asistente técnico de campo para terminales POS en Perú.
+Responde SIEMPRE en español claro, directo y práctico. Nunca uses inglés.
+Usa ÚNICAMENTE la información presente en DATOS SUPABASE. NO inventes pasos, menús, errores ni versiones que no estén en los datos.
+
+Si DATOS SUPABASE indica que no hay registros:
+Di brevemente que no hay información registrada para esa consulta en Supabase y pide precisar el error, comercio, entidad, modelo POS o tipo de consulta.
+
+Si SÍ hay registros relevantes, responde ÚNICAMENTE con estas dos secciones y sin saludos ni introducciones:
 
 💡 SOLUCIÓN PASO A PASO:
-[Escribe aquí la solución técnica de forma numerada o viñetas según los datos de Supabase]
+[Pasos o información concreta basada en los registros]
 
 📝 OBSERVACIONES:
-[Escribe aquí las observaciones, advertencias o detalles clave que se deben tener en cuenta, o 'Ninguna' si no aplica]
+[Observaciones, advertencias o detalles clave del registro, o "Ninguna"]`;
 
-Usa SOLO los datos de Supabase proporcionados: ${contexto}. Si no hay datos, dilo brevemente sugiriendo qué revisar.`;
-
-    const userPrompt = `PREGUNTA DEL TÉCNICO: ${pregunta}`;
+    const userPrompt = `DATOS SUPABASE (tabla soluciones): ${contexto}
+CONSULTA DEL TÉCNICO: ${pregunta}`;
 
     const resultado = await consultarOpenRouter(apiKey, systemPrompt, userPrompt);
 
@@ -111,3 +115,4 @@ Usa SOLO los datos de Supabase proporcionados: ${contexto}. Si no hay datos, dil
 
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => console.log(`Servidor listo en puerto ${PORT}`));
+        
