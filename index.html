@@ -583,13 +583,11 @@ function agregarCargando() {
   const row = document.createElement('div');
   row.className = 'msg-row bot';
 
-  const avatar = document.createElement('div');
-  avatar.className = 'bot-avatar';
-  avatar.innerHTML = `<img src="logo.png" alt="U">`;
+  
 
   const wrap = document.createElement('div');
   wrap.className = 'msg-content-wrap';
-  wrap.innerHTML = `<div class="typing-dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>Buscando en tus registros...</span></div>`;
+  wrap.innerHTML = `<div class="typing-dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span></span></div>`;
 
   row.appendChild(avatar);
   row.appendChild(wrap);
