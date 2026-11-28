@@ -80,7 +80,8 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    min-width: 0;
   }
 
   .brand-title {
@@ -89,6 +90,7 @@
     letter-spacing: -0.01em;
     color: var(--text-primary);
     white-space: nowrap;
+    flex-shrink: 0;
   }
 
   .model-pill {
@@ -99,6 +101,8 @@
     border: 1px solid rgba(99, 102, 241, 0.35);
     padding: 2px 8px;
     border-radius: 999px;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
 
   .btn-new {
@@ -555,8 +559,26 @@
   }
 
   @media (max-width: 640px) {
+    header {
+      padding: 0 10px;
+      gap: 6px;
+    }
+    .brand {
+      gap: 7px;
+    }
+    .brand-info {
+      gap: 5px;
+    }
+    .brand-title {
+      font-size: 12px;
+    }
     .model-pill {
-      display: none;
+      font-size: 10px;
+      padding: 2px 6px;
+    }
+    .btn-new {
+      font-size: 11px;
+      padding: 5px 8px;
     }
     .assistant-bubble {
       max-width: 210px;
@@ -586,7 +608,7 @@
     <div class="assistant-bar">
       <div class="assistant-widget" id="assistant-widget">
         <div id="assistant-bubble" class="assistant-bubble">Listo para ayudarte</div>
-        <button type="button" class="assistant-avatar-btn" onclick="ciclarMensajeAsistente()" title="Asistente">
+        <button type="button" class="assistant-avatar-btn" onclick="saludarAsistente()" title="Saludar">
           <img src="asistente.png" alt="Asistente">
         </button>
       </div>
@@ -680,6 +702,24 @@ const MENSAJES_ASISTENTE = {
   respuesta: "Consulta completada"
 };
 
+const SALUDOS_POR_MOMENTO = {
+  dia: [
+    "¡Buenos días! ¿Qué revisamos hoy?",
+    "¡Muy buenos días! Listo para apoyarte en campo.",
+    "¡Buenos días! Dime qué necesitas consultar."
+  ],
+  tarde: [
+    "¡Buenas tardes! ¿En qué te ayudo ahora?",
+    "¡Muy buenas tardes! Aquí estoy para asistirte.",
+    "¡Buenas tardes! ¿Qué consulta tienes pendiente?"
+  ],
+  noche: [
+    "¡Buenas noches! ¿Seguimos con alguna revisión?",
+    "¡Muy buenas noches! Listo para ayudarte con lo que necesites.",
+    "¡Buenas noches! Indícame qué vamos a revisar."
+  ]
+};
+
 const chat = document.getElementById('chat');
 const chatScroll = document.getElementById('chat-scroll');
 const promptHint = document.getElementById('prompt-hint');
@@ -691,7 +731,7 @@ const welcomeSubtitle = document.getElementById('welcome-subtitle');
 const assistantBubble = document.getElementById('assistant-bubble');
 
 let audioCheckTimer = null;
-let indiceMensajeManual = 0;
+let ultimoSaludoMostrado = "";
 
 const ACCIONES_BOTONES = {
   carga: {
@@ -723,10 +763,22 @@ function setMensajeAsistente(texto) {
   setTimeout(() => assistantBubble.classList.remove("active"), 600);
 }
 
-function ciclarMensajeAsistente() {
-  const lista = Object.values(MENSAJES_ASISTENTE);
-  indiceMensajeManual = (indiceMensajeManual + 1) % lista.length;
-  setMensajeAsistente(lista[indiceMensajeManual]);
+function obtenerMomentoDelDia() {
+  const hora = new Date().getHours();
+  if (hora >= 5 && hora < 12) return "dia";
+  if (hora >= 12 && hora < 19) return "tarde";
+  return "noche";
+}
+
+function saludarAsistente() {
+  const momento = obtenerMomentoDelDia();
+  const opciones = SALUDOS_POR_MOMENTO[momento] || SALUDOS_POR_MOMENTO.dia;
+  const candidatas = opciones.length > 1
+    ? opciones.filter(s => s !== ultimoSaludoMostrado)
+    : opciones;
+  const elegido = candidatas[Math.floor(Math.random() * candidatas.length)];
+  ultimoSaludoMostrado = elegido;
+  setMensajeAsistente(elegido);
 }
 
 function mostrarAvisoAudioBloqueado(mensaje = "El navegador bloqueó o no pudo reproducir el audio automáticamente.") {
