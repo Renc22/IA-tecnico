@@ -37,8 +37,8 @@
   }
 
   header {
-    min-height: 56px;
-    padding: 6px 16px;
+    height: 56px;
+    padding: 0 16px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -102,36 +102,79 @@
     white-space: nowrap;
   }
 
-  .header-right {
+  .btn-new {
+    background: transparent;
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    font-size: 12px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    cursor: pointer;
     display: flex;
     align-items: center;
-    justify-content: flex-end;
-    gap: 10px;
-    margin-left: auto;
-    min-width: 0;
+    gap: 5px;
+    outline: none;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
 
-  /* Asistente animado entre el título/píldora y Página principal */
-  .assistant-widget {
+  .btn-new:hover,
+  .btn-new:active,
+  .btn-new:focus {
+    background: transparent;
+    color: var(--text-secondary);
+    border-color: var(--border-subtle);
+  }
+
+  #chat-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px 16px 16px;
+    scroll-behavior: smooth;
+  }
+
+  #chat-scroll::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  #chat-scroll::-webkit-scrollbar-thumb {
+    background: #27272a;
+    border-radius: 999px;
+  }
+
+  .chat-container {
+    max-width: 760px;
+    margin: 0 auto;
     display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* Asistente animado a la derecha, debajo de la línea y antes del título */
+  .assistant-bar {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+  }
+
+  .assistant-widget {
+    display: inline-flex;
     align-items: center;
     gap: 8px;
-    min-width: 0;
+    max-width: 100%;
   }
 
   .assistant-bubble {
-    max-width: 250px;
+    max-width: 320px;
     background: var(--bg-elevated);
     border: 1px solid rgba(99, 102, 241, 0.35);
     color: #e4e4e7;
-    font-size: 11.5px;
-    line-height: 1.3;
-    padding: 5px 10px;
-    border-radius: 10px;
+    font-size: 12px;
+    line-height: 1.35;
+    padding: 6px 11px;
+    border-radius: 12px;
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
     transition: border-color 0.2s ease, transform 0.2s ease;
   }
 
@@ -141,8 +184,8 @@
   }
 
   .assistant-avatar-btn {
-    width: 34px;
-    height: 34px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     padding: 0;
     border: 1px solid rgba(99, 102, 241, 0.55);
@@ -181,61 +224,13 @@
     }
   }
 
-  .btn-new {
-    background: transparent;
-    border: 1px solid var(--border-subtle);
-    color: var(--text-secondary);
-    font-size: 12px;
-    padding: 6px 10px;
-    border-radius: 8px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    outline: none;
-    white-space: nowrap;
-    flex-shrink: 0;
-  }
-
-  .btn-new:hover,
-  .btn-new:active,
-  .btn-new:focus {
-    background: transparent;
-    color: var(--text-secondary);
-    border-color: var(--border-subtle);
-  }
-
-  #chat-scroll {
-    flex: 1;
-    overflow-y: auto;
-    padding: 24px 16px 16px;
-    scroll-behavior: smooth;
-  }
-
-  #chat-scroll::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  #chat-scroll::-webkit-scrollbar-thumb {
-    background: #27272a;
-    border-radius: 999px;
-  }
-
-  .chat-container {
-    max-width: 760px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-
   #welcome-screen {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     text-align: center;
-    padding: 40px 12px 20px;
+    padding: 16px 12px 20px;
     gap: 14px;
   }
 
@@ -565,8 +560,8 @@
       display: none;
     }
     .assistant-bubble {
-      max-width: 140px;
-      font-size: 11px;
+      max-width: 210px;
+      font-size: 11.5px;
     }
   }
 </style>
@@ -582,22 +577,22 @@
     </div>
   </div>
 
-  <div class="header-right">
-    <div class="assistant-widget" id="assistant-widget">
-      <div id="assistant-bubble" class="assistant-bubble" title="Asistente IA">Listo para ayudarte</div>
-      <button type="button" class="assistant-avatar-btn" onclick="hablarConAsistente()" title="Asistente IA">
-        <img src="asistente.png" alt="Asistente IA">
-      </button>
-    </div>
-
-    <button type="button" class="btn-new" onclick="limpiarChat()" title="Nueva consulta">
-      <span><-</span> Página principal
-    </button>
-  </div>
+  <button type="button" class="btn-new" onclick="limpiarChat()" title="Nueva consulta">
+    <span><-</span> Página principal
+  </button>
 </header>
 
 <div id="chat-scroll">
   <div class="chat-container" id="chat">
+    <div class="assistant-bar">
+      <div class="assistant-widget" id="assistant-widget">
+        <div id="assistant-bubble" class="assistant-bubble">Listo para ayudarte</div>
+        <button type="button" class="assistant-avatar-btn" onclick="ciclarMensajeAsistente()" title="Asistente">
+          <img src="asistente.png" alt="Asistente">
+        </button>
+      </div>
+    </div>
+
     <div id="welcome-screen">
       <h1 id="welcome-heading">¿En qué te ayudo?</h1>
       <p id="welcome-subtitle">Selecciona, escribe o envíame un audio</p>
@@ -630,7 +625,7 @@
         </button>
         <div class="ot-box">
           <label for="ot-input" class="ot-label">Según número de OT:</label>
-          <input id="ot-input" type="text" class="ot-input" placeholder="Ingresa el número de OT" oninput="actualizarAsistentePorOT(this.value)">
+          <input id="ot-input" type="text" class="ot-input" placeholder="Ingresa el número de OT" oninput="actualizarMensajePorOT(this.value)">
         </div>
       </div>
     </div>
@@ -672,6 +667,20 @@ const TITULO_INICIAL = "¿En qué te ayudo?";
 const SUBTITULO_INICIAL = "Selecciona, escribe o envíame un audio";
 const TITULO_PLANTILLAS = "Plantillas y Fotos";
 
+// Mensajes personalizados del asistente (sin IA)
+const MENSAJES_ASISTENTE = {
+  inicio: "Listo para ayudarte",
+  plantilla: "Elige una opción para buscar la info",
+  contometro: "Revisa los datos para liquidación de Contómetro",
+  ot: "Escribe el número de OT para continuar",
+  carga: "Indica el comercio o modelo de POS para la carga",
+  release: "Indica el comercio para revisar su Reléase",
+  problema: "Describe la falla o error que presenta el POS",
+  guia: "Indica el comercio o modelo de POS para la guía",
+  buscando: "Buscando la información solicitada",
+  respuesta: "Consulta completada"
+};
+
 const chat = document.getElementById('chat');
 const chatScroll = document.getElementById('chat-scroll');
 const promptHint = document.getElementById('prompt-hint');
@@ -683,86 +692,42 @@ const welcomeSubtitle = document.getElementById('welcome-subtitle');
 const assistantBubble = document.getElementById('assistant-bubble');
 
 let audioCheckTimer = null;
-let estadoActualWeb = "Pantalla de inicio de IA - Unix";
+let indiceMensajeManual = 0;
 
 const ACCIONES_BOTONES = {
   carga: {
     texto: "Carga ",
     aviso: "Ejemplo: Carga A910 Ripley",
-    contexto: "Pulsó botón Carga de POS"
+    mensajeAsistente: MENSAJES_ASISTENTE.carga
   },
   release: {
     texto: "Reléase ",
     aviso: "Ejemplo: Versión Lane7000 Saga",
-    contexto: "Pulsó botón Reléase actual"
+    mensajeAsistente: MENSAJES_ASISTENTE.release
   },
   problema: {
     texto: "Problema ",
     aviso: "Ejemplo: Problema Código 89",
-    contexto: "Pulsó botón Problema en un POS"
+    mensajeAsistente: MENSAJES_ASISTENTE.problema
   },
   guia: {
     texto: "Guia ",
     aviso: "Guía Aruma P10",
-    contexto: "Pulsó botón Guía de configuración"
+    mensajeAsistente: MENSAJES_ASISTENTE.guia
   }
 };
 
-function mostrarTextoAsistente(texto) {
+function setMensajeAsistente(texto) {
   if (!assistantBubble) return;
-  const limpio = String(texto || "").replace(/\s+/g, " ").trim();
-  assistantBubble.textContent = limpio || "Listo para ayudarte";
-  assistantBubble.title = limpio || "Asistente IA";
+  assistantBubble.textContent = texto;
   assistantBubble.classList.add("active");
-  setTimeout(() => assistantBubble.classList.remove("active"), 700);
+  setTimeout(() => assistantBubble.classList.remove("active"), 600);
 }
 
-function textoRespaldoAsistente(contexto) {
-  const c = String(contexto || "").toLowerCase();
-  if (c.includes("plantilla") || c.includes("liquidación") || c.includes("contómetro")) {
-    return "Elige Contómetro o ingresa la OT";
-  }
-  if (c.includes("carga")) return "Indica comercio y modelo de POS";
-  if (c.includes("reléase") || c.includes("release")) return "Indica el comercio para su versión";
-  if (c.includes("problema")) return "Describe brevemente la falla del POS";
-  if (c.includes("guía") || c.includes("guia")) return "Indica comercio o modelo para la guía";
-  if (c.includes("ot")) return "Completa el número de OT";
-  if (c.includes("buscando") || c.includes("consulta")) return "Consultando solución en base...";
-  return "Selecciona una opción o escribe tu consulta";
-}
-
-async function actualizarAsistenteConIA(contexto) {
-  estadoActualWeb = contexto;
-  mostrarTextoAsistente("Pensando...");
-
-  try {
-    const res = await fetch("/api/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        pregunta: `Genera un mensaje muy breve (máximo 8 palabras, en español, sin comillas) que guíe al técnico según este estado en la web: "${contexto}".`,
-        datos: []
-      })
-    });
-    const data = await res.json();
-    const textoIA = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (textoIA) {
-      mostrarTextoAsistente(textoIA);
-      return;
-    }
-  } catch (e) {
-    // Usa respaldo local si falla la llamada
-  }
-
-  mostrarTextoAsistente(textoRespaldoAsistente(contexto));
-}
-
-function hablarConAsistente() {
-  const ultimoBot = chat.querySelector(".msg-row.bot .msg-bubble");
-  const resumenVisible = ultimoBot
-    ? `Respuesta visible: ${ultimoBot.textContent.slice(0, 80)}`
-    : estadoActualWeb;
-  actualizarAsistenteConIA(resumenVisible);
+function ciclarMensajeAsistente() {
+  const lista = Object.values(MENSAJES_ASISTENTE);
+  indiceMensajeManual = (indiceMensajeManual + 1) % lista.length;
+  setMensajeAsistente(lista[indiceMensajeManual]);
 }
 
 function mostrarAvisoAudioBloqueado(mensaje = "El navegador bloqueó o no pudo reproducir el audio automáticamente.") {
@@ -807,19 +772,21 @@ function abrirOpcionesPlantilla() {
   const otInput = document.getElementById('ot-input');
   if (otInput) otInput.focus();
 
-  actualizarAsistenteConIA("Vista Plantillas y Fotos abierta");
+  setMensajeAsistente(MENSAJES_ASISTENTE.plantilla);
 }
 
 function seleccionarContometro() {
   const otInput = document.getElementById('ot-input');
   if (otInput) otInput.focus();
-  actualizarAsistenteConIA("Seleccionó Para liquidación de Contómetro");
+  setMensajeAsistente(MENSAJES_ASISTENTE.contometro);
 }
 
-function actualizarAsistentePorOT(valor) {
+function actualizarMensajePorOT(valor) {
   const limpio = String(valor || "").trim();
   if (limpio) {
-    actualizarAsistenteConIA(`Ingresando OT ${limpio} en Plantillas y Fotos`);
+    setMensajeAsistente(`OT ingresada: ${limpio}`);
+  } else {
+    setMensajeAsistente(MENSAJES_ASISTENTE.ot);
   }
 }
 
@@ -857,7 +824,7 @@ function limpiarChat() {
   const welcome = document.getElementById('welcome-screen');
   if (welcome) welcome.style.display = 'flex';
 
-  actualizarAsistenteConIA("Volvió a la página principal");
+  setMensajeAsistente(MENSAJES_ASISTENTE.inicio);
 }
 
 function prepararBoton(clave) {
@@ -881,7 +848,7 @@ function prepararBoton(clave) {
   inp.setSelectionRange(largo, largo);
 
   mostrarAvisoIndicacion(config.aviso);
-  actualizarAsistenteConIA(config.contexto);
+  setMensajeAsistente(config.mensajeAsistente);
 }
 
 function esSaludoOCortesia(texto) {
@@ -931,7 +898,7 @@ function agregar(texto, tipo) {
     actions.appendChild(btnCopiar);
     wrap.appendChild(actions);
 
-    actualizarAsistenteConIA(`Mostrando respuesta sobre: ${texto.slice(0, 70)}`);
+    setMensajeAsistente(MENSAJES_ASISTENTE.respuesta);
   }
 
   row.appendChild(wrap);
@@ -1078,7 +1045,7 @@ function enviar() {
   ocultarAvisoIndicacion();
   ocultarAvisoAudioBloqueado();
   hablarUnMomento();
-  actualizarAsistenteConIA(`Buscando en la web: ${texto}`);
+  setMensajeAsistente(MENSAJES_ASISTENTE.buscando);
 
   agregar(texto, 'user');
   inp.value = "";
@@ -1106,7 +1073,7 @@ function escuchar() {
 }
 
 window.addEventListener("DOMContentLoaded", () => {
-  actualizarAsistenteConIA("Web cargada en pantalla principal");
+  setMensajeAsistente(MENSAJES_ASISTENTE.inicio);
 });
 </script>
 </body>
