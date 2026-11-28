@@ -20,6 +20,17 @@
     --accent-glow: rgba(99, 102, 241, 0.16);
   }
 
+  /* Colores guardados del botón buscar para usar en otro momento:
+     background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+     color: #ffffff;
+     box-shadow: 0 2px 10px rgba(99, 102, 241, 0.35);
+  */
+  .saved-send-colors {
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    color: #ffffff;
+    box-shadow: 0 2px 10px rgba(99, 102, 241, 0.35);
+  }
+
   * {
     box-sizing: border-box;
     margin: 0;
@@ -103,9 +114,6 @@
     border-radius: 999px;
     white-space: nowrap;
     flex-shrink: 0;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
   }
 
   .btn-new {
@@ -181,12 +189,27 @@
     padding: 6px 11px;
     border-radius: 12px;
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
-    transition: border-color 0.2s ease, transform 0.2s ease;
+    transition: border-color 0.2s ease;
   }
 
-  .assistant-bubble.active {
+  .assistant-bubble.message-anim {
     border-color: var(--accent-primary);
-    transform: translateY(-1px);
+    animation: bubblePop 0.48s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  @keyframes bubblePop {
+    0% {
+      opacity: 0.35;
+      transform: translateY(5px) scale(0.95);
+    }
+    55% {
+      opacity: 1;
+      transform: translateY(-2px) scale(1.03);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
   }
 
   .assistant-avatar-btn {
@@ -212,6 +235,11 @@
     border-color: #a5b4fc;
   }
 
+  .assistant-avatar-btn.speaking-anim {
+    animation: assistantTalk 0.55s ease-in-out;
+    border-color: #c4b5fd;
+  }
+
   .assistant-avatar-btn img {
     width: 100%;
     height: 100%;
@@ -228,6 +256,14 @@
       transform: translateY(-2.5px);
       box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.24);
     }
+  }
+
+  @keyframes assistantTalk {
+    0% { transform: scale(1) rotate(0deg); }
+    25% { transform: scale(1.12) rotate(-7deg); }
+    55% { transform: scale(0.96) rotate(7deg); }
+    80% { transform: scale(1.06) rotate(-3deg); }
+    100% { transform: scale(1) rotate(0deg); }
   }
 
   #welcome-screen {
@@ -335,6 +371,26 @@
 
   .ot-input::placeholder {
     color: var(--text-muted);
+  }
+
+  .ot-search-btn {
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    color: #ffffff;
+    box-shadow: 0 2px 10px rgba(99, 102, 241, 0.35);
+    border: none;
+    border-radius: 10px;
+    padding: 8px 12px;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: transform 0.15s ease, filter 0.15s ease;
+  }
+
+  .ot-search-btn:hover {
+    filter: brightness(1.1);
+    transform: scale(1.03);
   }
 
   .msg-row {
@@ -477,83 +533,6 @@
     border-radius: 10px;
   }
 
-  .composer-box {
-    width: 100%;
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    border-radius: 22px;
-    padding: 8px 10px 8px 16px;
-    display: flex;
-    align-items: flex-end;
-    gap: 8px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-    transition: border-color 0.15s ease, box-shadow 0.15s ease;
-  }
-
-  .composer-box:focus-within {
-    border-color: var(--border-focus);
-    box-shadow: 0 0 0 3px var(--accent-glow), 0 8px 24px rgba(0, 0, 0, 0.45);
-  }
-
-  #input {
-    flex: 1;
-    background: transparent;
-    border: none;
-    outline: none;
-    color: var(--text-primary);
-    font-family: inherit;
-    font-size: 15px;
-    line-height: 1.45;
-    resize: none;
-    max-height: 140px;
-    padding: 6px 0;
-  }
-
-  #input::placeholder {
-    color: var(--text-muted);
-  }
-
-  .icon-btn {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    border: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    flex-shrink: 0;
-    transition: all 0.15s ease;
-  }
-
-  #btn-mic {
-    background: transparent;
-    color: var(--text-secondary);
-    border: 1px solid transparent;
-  }
-
-  #btn-mic:hover {
-    background: var(--bg-surface-hover);
-    color: var(--text-primary);
-  }
-
-  #btn-mic.listening {
-    background: rgba(239, 68, 68, 0.18);
-    color: #f87171;
-    border-color: rgba(239, 68, 68, 0.4);
-  }
-
-  #btn-send {
-    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-    color: #ffffff;
-    box-shadow: 0 2px 10px rgba(99, 102, 241, 0.35);
-  }
-
-  #btn-send:hover {
-    filter: brightness(1.1);
-    transform: scale(1.03);
-  }
-
   .footer-note {
     text-align: center;
     font-size: 11px;
@@ -611,7 +590,7 @@
     <div class="assistant-bar">
       <div class="assistant-widget" id="assistant-widget">
         <div id="assistant-bubble" class="assistant-bubble">Listo para ayudarte</div>
-        <button type="button" class="assistant-avatar-btn" onclick="saludarAsistente()" title="Saludar">
+        <button id="assistant-avatar-btn" type="button" class="assistant-avatar-btn" onclick="accionAleatoriaAsistente()" title="Asistente">
           <img src="asistente.png" alt="Asistente">
         </button>
       </div>
@@ -647,7 +626,7 @@
         <button type="button" class="suggestion-card" onclick="seleccionarContometro()">
           <strong>Para liquidación de Contómetro</strong>
         </button>
-        <div class="ot-box">
+        <div id="ot-box" class="ot-box">
           <label for="ot-input" class="ot-label">Según número de OT:</label>
           <input id="ot-input" type="text" class="ot-input" placeholder="Ingresa el número de OT" oninput="actualizarMensajePorOT(this.value)">
         </div>
@@ -662,22 +641,6 @@
       El navegador bloqueó o no pudo reproducir el audio automáticamente.
     </div>
     <div id="prompt-hint" class="prompt-hint"></div>
-    <div class="composer-box">
-      <textarea id="input" rows="1" placeholder="Escribe aquí" oninput="autoAltura(this)" onkeydown="manejarTecla(event)"></textarea>
-      <button id="btn-mic" type="button" class="icon-btn" onclick="escuchar()" title="Dictar por voz">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
-          <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-          <line x1="12" x2="12" y1="19" y2="22"/>
-        </svg>
-      </button>
-      <button id="btn-send" type="button" class="icon-btn" onclick="enviar()" title="Buscar">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M5 12h14"/>
-          <path d="m12 5 7 7-7 7"/>
-        </svg>
-      </button>
-    </div>
   </div>
   <div class="footer-note">Respuestas basadas en la base de soluciones Supabase</div>
 </div>
@@ -691,7 +654,7 @@ const TITULO_INICIAL = "¿En qué te ayudo?";
 const SUBTITULO_INICIAL = "Selecciona, escribe o envíame un audio";
 const TITULO_PLANTILLAS = "Plantillas y Fotos";
 
-// Mensajes personalizados del asistente (sin IA)
+// Mensajes personalizados del asistente
 const MENSAJES_ASISTENTE = {
   inicio: "Listo para ayudarte",
   plantilla: "Elige una opción para buscar la info",
@@ -705,23 +668,22 @@ const MENSAJES_ASISTENTE = {
   respuesta: "Consulta completada"
 };
 
-const SALUDOS_POR_MOMENTO = {
-  dia: [
-    "¡Buenos días! ¿Qué revisamos hoy?",
-    "¡Muy buenos días! Listo para apoyarte en campo.",
-    "¡Buenos días! Dime qué necesitas consultar."
-  ],
-  tarde: [
-    "¡Buenas tardes! ¿En qué te ayudo ahora?",
-    "¡Muy buenas tardes! Aquí estoy para asistirte.",
-    "¡Buenas tardes! ¿Qué consulta tienes pendiente?"
-  ],
-  noche: [
-    "¡Buenas noches! ¿Seguimos con alguna revisión?",
-    "¡Muy buenas noches! Listo para ayudarte con lo que necesites.",
-    "¡Buenas noches! Indícame qué vamos a revisar."
-  ]
-};
+// Saludos sin franja horaria (aparecen muy aleatoriamente al pulsar el asistente)
+const SALUDOS_ALEATORIOS = [
+  "¡Hola! ¿Qué tal?",
+  "¡Hey! ¿Todo bien por ahí?",
+  "¡Qué tal! Por aquí ando.",
+  "¡Hola! ¿Cómo va todo?"
+];
+
+const AVISOS_ALEATORIOS = [
+  "Aquí estoy si necesitas revisar algo.",
+  "Cuando quieras, elige una opción.",
+  "Todo listo para continuar.",
+  "¿Revisamos alguna OT o guía?"
+];
+
+const PROBABILIDAD_SALUDO = 0.22;
 
 const chat = document.getElementById('chat');
 const chatScroll = document.getElementById('chat-scroll');
@@ -729,12 +691,14 @@ const promptHint = document.getElementById('prompt-hint');
 const audioBlockedNotice = document.getElementById('audio-blocked-notice');
 const suggestionsGrid = document.getElementById('suggestions-grid');
 const liquidacionPanel = document.getElementById('liquidacion-panel');
+const otBox = document.getElementById('ot-box');
 const welcomeHeading = document.getElementById('welcome-heading');
 const welcomeSubtitle = document.getElementById('welcome-subtitle');
 const assistantBubble = document.getElementById('assistant-bubble');
+const assistantAvatarBtn = document.getElementById('assistant-avatar-btn');
 
 let audioCheckTimer = null;
-let ultimoSaludoMostrado = "";
+let ultimoMensajeAleatorio = "";
 
 const ACCIONES_BOTONES = {
   carga: {
@@ -762,26 +726,62 @@ const ACCIONES_BOTONES = {
 function setMensajeAsistente(texto) {
   if (!assistantBubble) return;
   assistantBubble.textContent = texto;
-  assistantBubble.classList.add("active");
-  setTimeout(() => assistantBubble.classList.remove("active"), 600);
+
+  assistantBubble.classList.remove("message-anim");
+  void assistantBubble.offsetWidth;
+  assistantBubble.classList.add("message-anim");
+
+  if (assistantAvatarBtn) {
+    assistantAvatarBtn.classList.remove("speaking-anim");
+    void assistantAvatarBtn.offsetWidth;
+    assistantAvatarBtn.classList.add("speaking-anim");
+  }
 }
 
-function obtenerMomentoDelDia() {
-  const hora = new Date().getHours();
-  if (hora >= 5 && hora < 12) return "dia";
-  if (hora >= 12 && hora < 19) return "tarde";
-  return "noche";
+function elegirSinRepetir(lista) {
+  if (!lista.length) return "";
+  if (lista.length === 1) return lista[0];
+  const candidatas = lista.filter(item => item !== ultimoMensajeAleatorio);
+  const elegida = candidatas[Math.floor(Math.random() * candidatas.length)];
+  ultimoMensajeAleatorio = elegida;
+  return elegida;
 }
 
-function saludarAsistente() {
-  const momento = obtenerMomentoDelDia();
-  const opciones = SALUDOS_POR_MOMENTO[momento] || SALUDOS_POR_MOMENTO.dia;
-  const candidatas = opciones.length > 1
-    ? opciones.filter(s => s !== ultimoSaludoMostrado)
-    : opciones;
-  const elegido = candidatas[Math.floor(Math.random() * candidatas.length)];
-  ultimoSaludoMostrado = elegido;
-  setMensajeAsistente(elegido);
+function accionAleatoriaAsistente() {
+  const debeSaludar = Math.random() < PROBABILIDAD_SALUDO;
+  const mensaje = debeSaludar
+    ? elegirSinRepetir(SALUDOS_ALEATORIOS)
+    : elegirSinRepetir(AVISOS_ALEATORIOS);
+  setMensajeAsistente(mensaje);
+}
+
+function asegurarBotonFlechaOT() {
+  if (!otBox || document.getElementById('ot-search-btn')) return;
+  const btnFlecha = document.createElement('button');
+  btnFlecha.id = 'ot-search-btn';
+  btnFlecha.type = 'button';
+  btnFlecha.className = 'ot-search-btn';
+  btnFlecha.title = 'Buscar por número de OT';
+  btnFlecha.setAttribute('aria-label', 'Buscar por número de OT');
+  btnFlecha.textContent = '→';
+  btnFlecha.onclick = buscarPorOT;
+  otBox.appendChild(btnFlecha);
+}
+
+function buscarPorOT() {
+  const otInput = document.getElementById('ot-input');
+  const valorOT = otInput ? otInput.value.trim() : "";
+  ocultarAvisoIndicacion();
+  ocultarAvisoAudioBloqueado();
+  hablarUnMomento();
+
+  if (!valorOT) {
+    setMensajeAsistente(MENSAJES_ASISTENTE.ot);
+    if (otInput) otInput.focus();
+    return;
+  }
+
+  setMensajeAsistente(`Buscando OT ${valorOT}`);
 }
 
 function mostrarAvisoAudioBloqueado(mensaje = "El navegador bloqueó o no pudo reproducir el audio automáticamente.") {
@@ -823,6 +823,8 @@ function abrirOpcionesPlantilla() {
   if (suggestionsGrid) suggestionsGrid.style.display = "none";
   if (liquidacionPanel) liquidacionPanel.style.display = "flex";
 
+  asegurarBotonFlechaOT();
+
   const otInput = document.getElementById('ot-input');
   if (otInput) otInput.focus();
 
@@ -841,18 +843,6 @@ function actualizarMensajePorOT(valor) {
     setMensajeAsistente(`OT ingresada: ${limpio}`);
   } else {
     setMensajeAsistente(MENSAJES_ASISTENTE.ot);
-  }
-}
-
-function autoAltura(el) {
-  el.style.height = 'auto';
-  el.style.height = Math.min(el.scrollHeight, 140) + 'px';
-}
-
-function manejarTecla(e) {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    enviar();
   }
 }
 
@@ -893,32 +883,8 @@ function prepararBoton(clave) {
   clearTimeout(audioCheckTimer);
   ocultarAvisoAudioBloqueado();
 
-  const inp = document.getElementById('input');
-  inp.value = config.texto;
-  autoAltura(inp);
-  inp.focus();
-
-  const largo = inp.value.length;
-  inp.setSelectionRange(largo, largo);
-
   mostrarAvisoIndicacion(config.aviso);
   setMensajeAsistente(config.mensajeAsistente);
-}
-
-function esSaludoOCortesia(texto) {
-  const limpio = texto
-    .toLowerCase()
-    .trim()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[¡!¿?.,]/g, "");
-
-  const saludos = [
-    "hola", "holi", "buenas", "buenos dias", "buen dia",
-    "buenas tardes", "buenas noches", "que tal", "como estas",
-    "gracias", "muchas gracias", "ok", "vale", "listo", "perfecto"
-  ];
-  return saludos.includes(limpio);
 }
 
 function agregar(texto, tipo) {
@@ -954,21 +920,6 @@ function agregar(texto, tipo) {
 
     setMensajeAsistente(MENSAJES_ASISTENTE.respuesta);
   }
-
-  row.appendChild(wrap);
-  chat.appendChild(row);
-  chatScroll.scrollTop = chatScroll.scrollHeight;
-  return row;
-}
-
-function agregarCargando() {
-  ocultarBienvenida();
-  const row = document.createElement('div');
-  row.className = 'msg-row bot';
-
-  const wrap = document.createElement('div');
-  wrap.className = 'msg-content-wrap';
-  wrap.innerHTML = `<div class="typing-dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>`;
 
   row.appendChild(wrap);
   chat.appendChild(row);
@@ -1017,113 +968,6 @@ function hablarUnMomento() {
       mostrarAvisoAudioBloqueado("El navegador bloqueó o detuvo la reproducción de audio.");
     }
   }, 450);
-}
-
-async function buscarEnSupabase(pregunta) {
-  try {
-    const url = `${SUPABASE_URL}/rest/v1/soluciones?select=*&limit=30`;
-    const res = await fetch(url, {
-      headers: {
-        apikey: SUPABASE_ANON_KEY,
-        Authorization: `Bearer ${SUPABASE_ANON_KEY}`
-      }
-    });
-    const datos = await res.json();
-    if (!Array.isArray(datos)) return [];
-
-    const q = pregunta
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "");
-
-    const palabras = q
-      .replace(/[^a-z0-9\s]/g, " ")
-      .split(/\s+/)
-      .filter(p => p.length >= 2);
-
-    if (!palabras.length) return [];
-
-    return datos.filter(d => {
-      const texto = JSON.stringify(d)
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "");
-      return palabras.some(p => texto.includes(p));
-    }).slice(0, 5);
-  } catch (e) {
-    console.log("Error Supabase:", e);
-    return [];
-  }
-}
-
-async function preguntarIA(pregunta, datos) {
-  const res = await fetch(`/api/chat`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ pregunta, datos })
-  });
-  const data = await res.json();
-  if (data.error) throw new Error(data.error.message || "Error de OpenRouter");
-  const texto = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!texto) throw new Error("Respuesta vacía del servidor");
-  return texto;
-}
-
-async function responderIA(pregunta) {
-  if (esSaludoOCortesia(pregunta)) {
-    agregar(
-      "¡Hola! Indícame el error, entidad, comercio, modelo POS, guía, release o plantilla que necesitas revisar.",
-      "bot"
-    );
-    return;
-  }
-
-  const cargando = agregarCargando();
-  try {
-    const datos = await buscarEnSupabase(pregunta);
-    const respuesta = await preguntarIA(pregunta, datos);
-    agregar(respuesta, 'bot');
-  } catch (err) {
-    console.error("Error en responderIA:", err);
-    agregar("No pude completar la consulta: " + err.message, 'bot');
-  } finally {
-    cargando.remove();
-  }
-}
-
-function enviar() {
-  const inp = document.getElementById('input');
-  if (!inp.value.trim()) return;
-  const texto = inp.value.trim();
-
-  ocultarAvisoIndicacion();
-  ocultarAvisoAudioBloqueado();
-  hablarUnMomento();
-  setMensajeAsistente(MENSAJES_ASISTENTE.buscando);
-
-  agregar(texto, 'user');
-  inp.value = "";
-  inp.style.height = 'auto';
-  responderIA(texto);
-}
-
-function escuchar() {
-  const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SpeechRec) {
-    agregar("Tu navegador no soporta reconocimiento de voz.", 'bot');
-    return;
-  }
-  const btnMic = document.getElementById('btn-mic');
-  const rec = new SpeechRec();
-  rec.lang = 'es-PE';
-  btnMic.classList.add('listening');
-  rec.start();
-  rec.onresult = e => {
-    document.getElementById('input').value = e.results[0][0].transcript;
-    enviar();
-  };
-  rec.onend = () => btnMic.classList.remove('listening');
-  rec.onerror = () => btnMic.classList.remove('listening');
 }
 
 window.addEventListener("DOMContentLoaded", () => {
