@@ -199,6 +199,54 @@
     transform: translateY(-1px);
   }
 
+  /* Opciones de Plantilla y fotos de liquidación */
+  .liquidacion-panel {
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    margin-top: 8px;
+  }
+
+  .ot-box {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    text-align: left;
+  }
+
+  .ot-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  .ot-input {
+    width: 100%;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 10px;
+    padding: 9px 12px;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .ot-input:focus {
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+  }
+
+  .ot-input::placeholder {
+    color: var(--text-muted);
+  }
+
   .msg-row {
     display: flex;
     width: 100%;
@@ -449,9 +497,9 @@
           <strong>Carga de POS</strong>
           Escríbeme: "Carga " + Comercio + Modelo POS
         </button>
-        <button type="button" class="suggestion-card" onclick="prepararBoton('plantilla')">
+        <button type="button" class="suggestion-card" onclick="abrirOpcionesPlantilla()">
           <strong>Plantilla y fotos de liquidación</strong>
-          Escríbeme: "Plantilla " + Tipo + Entidad
+          Elige una opción de liquidación
         </button>
         <button type="button" class="suggestion-card" onclick="prepararBoton('release')">
           <strong>Reléase actual</strong>
@@ -465,6 +513,16 @@
           <strong>Guía de configuración</strong>
           Escríbeme: "Guia " + Comercio + Modelo POS
         </button>
+      </div>
+
+      <div id="liquidacion-panel" class="liquidacion-panel">
+        <button type="button" class="suggestion-card" onclick="seleccionarContometro()">
+          <strong>Para liquidación de Contómetro</strong>
+        </button>
+        <div class="ot-box">
+          <label for="ot-input" class="ot-label">Según número de OT:</label>
+          <input id="ot-input" type="text" class="ot-input" placeholder="Ingresa el número de OT">
+        </div>
       </div>
     </div>
   </div>
@@ -506,6 +564,7 @@ const chat = document.getElementById('chat');
 const chatScroll = document.getElementById('chat-scroll');
 const promptHint = document.getElementById('prompt-hint');
 const audioBlockedNotice = document.getElementById('audio-blocked-notice');
+const liquidacionPanel = document.getElementById('liquidacion-panel');
 
 let audioCheckTimer = null;
 
@@ -513,10 +572,6 @@ const ACCIONES_BOTONES = {
   carga: {
     texto: "Carga ",
     aviso: "Ejemplo: Carga A910 Ripley"
-  },
-  plantilla: {
-    texto: "Plantilla ",
-    aviso: "Ejemplo: Plantilla Averia Niubiz"
   },
   release: {
     texto: "Reléase ",
@@ -528,7 +583,7 @@ const ACCIONES_BOTONES = {
   },
   guia: {
     texto: "Guia ",
-    aviso: "Ejemplo: Guía Aruma P10"
+    aviso: "Guía Aruma P10"
   }
 };
 
@@ -549,6 +604,27 @@ function mostrarAvisoIndicacion(textoAviso) {
 function ocultarAvisoIndicacion() {
   promptHint.style.display = "none";
   promptHint.textContent = "";
+}
+
+function ocultarPanelLiquidacion() {
+  if (liquidacionPanel) {
+    liquidacionPanel.style.display = "none";
+  }
+}
+
+function abrirOpcionesPlantilla() {
+  if (!liquidacionPanel) return;
+  const visible = liquidacionPanel.style.display === "flex";
+  liquidacionPanel.style.display = visible ? "none" : "flex";
+  if (!visible) {
+    const otInput = document.getElementById('ot-input');
+    if (otInput) otInput.focus();
+  }
+}
+
+function seleccionarContometro() {
+  const otInput = document.getElementById('ot-input');
+  if (otInput) otInput.focus();
 }
 
 function autoAltura(el) {
@@ -575,6 +651,10 @@ function limpiarChat() {
   clearTimeout(audioCheckTimer);
   ocultarAvisoIndicacion();
   ocultarAvisoAudioBloqueado();
+  ocultarPanelLiquidacion();
+
+  const otInput = document.getElementById('ot-input');
+  if (otInput) otInput.value = "";
 
   const filas = chat.querySelectorAll('.msg-row');
   filas.forEach(f => f.remove());
@@ -585,6 +665,8 @@ function limpiarChat() {
 function prepararBoton(clave) {
   const config = ACCIONES_BOTONES[clave];
   if (!config) return;
+
+  ocultarPanelLiquidacion();
 
   if ("speechSynthesis" in window) {
     speechSynthesis.cancel();
