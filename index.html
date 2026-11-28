@@ -37,11 +37,12 @@
   }
 
   header {
-    height: 56px;
-    padding: 0 16px;
+    min-height: 56px;
+    padding: 6px 16px;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 10px;
     border-bottom: 1px solid var(--border-subtle);
     background: rgba(9, 9, 11, 0.85);
     backdrop-filter: blur(12px);
@@ -53,6 +54,7 @@
     display: flex;
     align-items: center;
     gap: 10px;
+    min-width: 0;
   }
 
   .brand-logo {
@@ -65,6 +67,7 @@
     align-items: center;
     justify-content: center;
     overflow: hidden;
+    flex-shrink: 0;
   }
 
   .brand-logo img {
@@ -77,6 +80,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
+    flex-wrap: wrap;
   }
 
   .brand-title {
@@ -84,6 +88,7 @@
     font-weight: 500;
     letter-spacing: -0.01em;
     color: var(--text-primary);
+    white-space: nowrap;
   }
 
   .model-pill {
@@ -94,6 +99,86 @@
     border: 1px solid rgba(99, 102, 241, 0.35);
     padding: 2px 8px;
     border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-left: auto;
+    min-width: 0;
+  }
+
+  /* Asistente animado entre el título/píldora y Página principal */
+  .assistant-widget {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .assistant-bubble {
+    max-width: 250px;
+    background: var(--bg-elevated);
+    border: 1px solid rgba(99, 102, 241, 0.35);
+    color: #e4e4e7;
+    font-size: 11.5px;
+    line-height: 1.3;
+    padding: 5px 10px;
+    border-radius: 10px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: border-color 0.2s ease, transform 0.2s ease;
+  }
+
+  .assistant-bubble.active {
+    border-color: var(--accent-primary);
+    transform: translateY(-1px);
+  }
+
+  .assistant-avatar-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    padding: 0;
+    border: 1px solid rgba(99, 102, 241, 0.55);
+    background: var(--bg-elevated);
+    cursor: pointer;
+    overflow: hidden;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 0 2px var(--accent-glow);
+    animation: assistantFloat 2.6s ease-in-out infinite;
+    transition: transform 0.15s ease, border-color 0.15s ease;
+  }
+
+  .assistant-avatar-btn:hover {
+    transform: scale(1.06);
+    border-color: #a5b4fc;
+  }
+
+  .assistant-avatar-btn img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  @keyframes assistantFloat {
+    0%, 100% {
+      transform: translateY(0px);
+      box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.16);
+    }
+    50% {
+      transform: translateY(-2.5px);
+      box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.24);
+    }
   }
 
   .btn-new {
@@ -108,6 +193,8 @@
     align-items: center;
     gap: 5px;
     outline: none;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
 
   .btn-new:hover,
@@ -152,13 +239,13 @@
     gap: 14px;
   }
 
-  #welcome-screen h1 {
+  #welcome-heading {
     font-size: 22px;
     font-weight: 600;
     letter-spacing: -0.02em;
   }
 
-  #welcome-screen p {
+  #welcome-subtitle {
     font-size: 14px;
     color: var(--text-secondary);
     max-width: 460px;
@@ -472,6 +559,16 @@
     color: var(--text-muted);
     margin-top: 8px;
   }
+
+  @media (max-width: 640px) {
+    .model-pill {
+      display: none;
+    }
+    .assistant-bubble {
+      max-width: 140px;
+      font-size: 11px;
+    }
+  }
 </style>
 </head>
 <body>
@@ -484,16 +581,26 @@
       <span class="model-pill">OpenRouter • Supabase</span>
     </div>
   </div>
-  <button type="button" class="btn-new" onclick="limpiarChat()" title="Nueva consulta">
-    <span><-</span> Página principal
-  </button>
+
+  <div class="header-right">
+    <div class="assistant-widget" id="assistant-widget">
+      <div id="assistant-bubble" class="assistant-bubble" title="Asistente IA">Listo para ayudarte</div>
+      <button type="button" class="assistant-avatar-btn" onclick="hablarConAsistente()" title="Asistente IA">
+        <img src="asistente.png" alt="Asistente IA">
+      </button>
+    </div>
+
+    <button type="button" class="btn-new" onclick="limpiarChat()" title="Nueva consulta">
+      <span><-</span> Página principal
+    </button>
+  </div>
 </header>
 
 <div id="chat-scroll">
   <div class="chat-container" id="chat">
     <div id="welcome-screen">
-      <h1>¿En qué te ayudo?</h1>
-      <p>Selecciona, escribe o envíame un audio</p>
+      <h1 id="welcome-heading">¿En qué te ayudo?</h1>
+      <p id="welcome-subtitle">Selecciona, escribe o envíame un audio</p>
       <div id="suggestions-grid" class="suggestions">
         <button type="button" class="suggestion-card" onclick="prepararBoton('carga')">
           <strong>Carga de POS</strong>
@@ -523,7 +630,7 @@
         </button>
         <div class="ot-box">
           <label for="ot-input" class="ot-label">Según número de OT:</label>
-          <input id="ot-input" type="text" class="ot-input" placeholder="Ingresa el número de OT">
+          <input id="ot-input" type="text" class="ot-input" placeholder="Ingresa el número de OT" oninput="actualizarAsistentePorOT(this.value)">
         </div>
       </div>
     </div>
@@ -561,6 +668,9 @@ const SUPABASE_URL = "https://nlynbrrrybgufwmcjhmu.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_JtRhd51yYCWEEfHCs50Cjw_RSS-_kAu";
 
 const TEXTO_BUSCANDO = "un momento";
+const TITULO_INICIAL = "¿En qué te ayudo?";
+const SUBTITULO_INICIAL = "Selecciona, escribe o envíame un audio";
+const TITULO_PLANTILLAS = "Plantillas y Fotos";
 
 const chat = document.getElementById('chat');
 const chatScroll = document.getElementById('chat-scroll');
@@ -568,27 +678,92 @@ const promptHint = document.getElementById('prompt-hint');
 const audioBlockedNotice = document.getElementById('audio-blocked-notice');
 const suggestionsGrid = document.getElementById('suggestions-grid');
 const liquidacionPanel = document.getElementById('liquidacion-panel');
+const welcomeHeading = document.getElementById('welcome-heading');
+const welcomeSubtitle = document.getElementById('welcome-subtitle');
+const assistantBubble = document.getElementById('assistant-bubble');
 
 let audioCheckTimer = null;
+let estadoActualWeb = "Pantalla de inicio de IA - Unix";
 
 const ACCIONES_BOTONES = {
   carga: {
     texto: "Carga ",
-    aviso: "Ejemplo: Carga A910 Ripley"
+    aviso: "Ejemplo: Carga A910 Ripley",
+    contexto: "Pulsó botón Carga de POS"
   },
   release: {
     texto: "Reléase ",
-    aviso: "Ejemplo: Versión Lane7000 Saga"
+    aviso: "Ejemplo: Versión Lane7000 Saga",
+    contexto: "Pulsó botón Reléase actual"
   },
   problema: {
     texto: "Problema ",
-    aviso: "Ejemplo: Problema Código 89"
+    aviso: "Ejemplo: Problema Código 89",
+    contexto: "Pulsó botón Problema en un POS"
   },
   guia: {
     texto: "Guia ",
-    aviso: "Guía Aruma P10"
+    aviso: "Guía Aruma P10",
+    contexto: "Pulsó botón Guía de configuración"
   }
 };
+
+function mostrarTextoAsistente(texto) {
+  if (!assistantBubble) return;
+  const limpio = String(texto || "").replace(/\s+/g, " ").trim();
+  assistantBubble.textContent = limpio || "Listo para ayudarte";
+  assistantBubble.title = limpio || "Asistente IA";
+  assistantBubble.classList.add("active");
+  setTimeout(() => assistantBubble.classList.remove("active"), 700);
+}
+
+function textoRespaldoAsistente(contexto) {
+  const c = String(contexto || "").toLowerCase();
+  if (c.includes("plantilla") || c.includes("liquidación") || c.includes("contómetro")) {
+    return "Elige Contómetro o ingresa la OT";
+  }
+  if (c.includes("carga")) return "Indica comercio y modelo de POS";
+  if (c.includes("reléase") || c.includes("release")) return "Indica el comercio para su versión";
+  if (c.includes("problema")) return "Describe brevemente la falla del POS";
+  if (c.includes("guía") || c.includes("guia")) return "Indica comercio o modelo para la guía";
+  if (c.includes("ot")) return "Completa el número de OT";
+  if (c.includes("buscando") || c.includes("consulta")) return "Consultando solución en base...";
+  return "Selecciona una opción o escribe tu consulta";
+}
+
+async function actualizarAsistenteConIA(contexto) {
+  estadoActualWeb = contexto;
+  mostrarTextoAsistente("Pensando...");
+
+  try {
+    const res = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        pregunta: `Genera un mensaje muy breve (máximo 8 palabras, en español, sin comillas) que guíe al técnico según este estado en la web: "${contexto}".`,
+        datos: []
+      })
+    });
+    const data = await res.json();
+    const textoIA = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (textoIA) {
+      mostrarTextoAsistente(textoIA);
+      return;
+    }
+  } catch (e) {
+    // Usa respaldo local si falla la llamada
+  }
+
+  mostrarTextoAsistente(textoRespaldoAsistente(contexto));
+}
+
+function hablarConAsistente() {
+  const ultimoBot = chat.querySelector(".msg-row.bot .msg-bubble");
+  const resumenVisible = ultimoBot
+    ? `Respuesta visible: ${ultimoBot.textContent.slice(0, 80)}`
+    : estadoActualWeb;
+  actualizarAsistenteConIA(resumenVisible);
+}
 
 function mostrarAvisoAudioBloqueado(mensaje = "El navegador bloqueó o no pudo reproducir el audio automáticamente.") {
   audioBlockedNotice.textContent = mensaje;
@@ -610,6 +785,11 @@ function ocultarAvisoIndicacion() {
 }
 
 function mostrarSugerenciasPrincipales() {
+  if (welcomeHeading) welcomeHeading.textContent = TITULO_INICIAL;
+  if (welcomeSubtitle) {
+    welcomeSubtitle.textContent = SUBTITULO_INICIAL;
+    welcomeSubtitle.style.display = "block";
+  }
   if (suggestionsGrid) {
     suggestionsGrid.style.display = "grid";
   }
@@ -619,19 +799,28 @@ function mostrarSugerenciasPrincipales() {
 }
 
 function abrirOpcionesPlantilla() {
-  if (suggestionsGrid) {
-    suggestionsGrid.style.display = "none";
-  }
-  if (liquidacionPanel) {
-    liquidacionPanel.style.display = "flex";
-  }
+  if (welcomeHeading) welcomeHeading.textContent = TITULO_PLANTILLAS;
+  if (welcomeSubtitle) welcomeSubtitle.style.display = "none";
+  if (suggestionsGrid) suggestionsGrid.style.display = "none";
+  if (liquidacionPanel) liquidacionPanel.style.display = "flex";
+
   const otInput = document.getElementById('ot-input');
   if (otInput) otInput.focus();
+
+  actualizarAsistenteConIA("Vista Plantillas y Fotos abierta");
 }
 
 function seleccionarContometro() {
   const otInput = document.getElementById('ot-input');
   if (otInput) otInput.focus();
+  actualizarAsistenteConIA("Seleccionó Para liquidación de Contómetro");
+}
+
+function actualizarAsistentePorOT(valor) {
+  const limpio = String(valor || "").trim();
+  if (limpio) {
+    actualizarAsistenteConIA(`Ingresando OT ${limpio} en Plantillas y Fotos`);
+  }
 }
 
 function autoAltura(el) {
@@ -667,6 +856,8 @@ function limpiarChat() {
   filas.forEach(f => f.remove());
   const welcome = document.getElementById('welcome-screen');
   if (welcome) welcome.style.display = 'flex';
+
+  actualizarAsistenteConIA("Volvió a la página principal");
 }
 
 function prepararBoton(clave) {
@@ -690,6 +881,7 @@ function prepararBoton(clave) {
   inp.setSelectionRange(largo, largo);
 
   mostrarAvisoIndicacion(config.aviso);
+  actualizarAsistenteConIA(config.contexto);
 }
 
 function esSaludoOCortesia(texto) {
@@ -738,6 +930,8 @@ function agregar(texto, tipo) {
 
     actions.appendChild(btnCopiar);
     wrap.appendChild(actions);
+
+    actualizarAsistenteConIA(`Mostrando respuesta sobre: ${texto.slice(0, 70)}`);
   }
 
   row.appendChild(wrap);
@@ -884,6 +1078,7 @@ function enviar() {
   ocultarAvisoIndicacion();
   ocultarAvisoAudioBloqueado();
   hablarUnMomento();
+  actualizarAsistenteConIA(`Buscando en la web: ${texto}`);
 
   agregar(texto, 'user');
   inp.value = "";
@@ -909,6 +1104,10 @@ function escuchar() {
   rec.onend = () => btnMic.classList.remove('listening');
   rec.onerror = () => btnMic.classList.remove('listening');
 }
+
+window.addEventListener("DOMContentLoaded", () => {
+  actualizarAsistenteConIA("Web cargada en pantalla principal");
+});
 </script>
 </body>
 </html>
