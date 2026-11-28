@@ -107,6 +107,10 @@ header {
   border-radius: 999px;
   white-space: nowrap;
   flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 
 .btn-new {
@@ -171,6 +175,13 @@ header {
   max-width: 100%;
 }
 
+.assistant-widget,
+.assistant-widget * {
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
 .assistant-bubble {
   max-width: 320px;
   background: var(--bg-elevated);
@@ -181,12 +192,36 @@ header {
   padding: 6px 11px;
   border-radius: 12px;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  outline: none;
   transition: border-color 0.2s ease;
 }
 
 .assistant-bubble.message-anim {
   border-color: var(--accent-primary);
   animation: bubblePop 0.48s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.assistant-text-anim {
+  display: inline-block;
+  animation: assistantTextReveal 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes assistantTextReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(6px) scale(0.96);
+    filter: blur(2px);
+  }
+  65% {
+    opacity: 1;
+    transform: translateY(-1px) scale(1.01);
+    filter: blur(0);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
 }
 
 @keyframes bubblePop {
@@ -212,6 +247,7 @@ header {
   border: 1px solid rgba(99, 102, 241, 0.55);
   background: var(--bg-elevated);
   cursor: pointer;
+  outline: none;
   overflow: hidden;
   flex-shrink: 0;
   display: flex;
@@ -227,6 +263,11 @@ header {
   border-color: #a5b4fc;
 }
 
+.assistant-avatar-btn:focus,
+.assistant-avatar-btn:active {
+  outline: none;
+}
+
 .assistant-avatar-btn.speaking-anim {
   animation: assistantTalk 0.55s ease-in-out;
   border-color: #c4b5fd;
@@ -237,6 +278,7 @@ header {
   height: 100%;
   object-fit: cover;
   display: block;
+  pointer-events: none;
 }
 
 @keyframes assistantFloat {
@@ -530,4 +572,4 @@ header {
     max-width: 210px;
     font-size: 11.5px;
   }
-}
+    }
