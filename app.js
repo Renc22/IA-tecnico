@@ -90,7 +90,12 @@ const ACCIONES_BOTONES = {
 
 function setMensajeAsistente(texto) {
   if (!assistantBubble) return;
-  assistantBubble.textContent = texto;
+
+  assistantBubble.innerHTML = "";
+  const spanTexto = document.createElement("span");
+  spanTexto.className = "assistant-text-anim";
+  spanTexto.textContent = texto;
+  assistantBubble.appendChild(spanTexto);
 
   assistantBubble.classList.remove("message-anim");
   void assistantBubble.offsetWidth;
@@ -102,6 +107,7 @@ function setMensajeAsistente(texto) {
     assistantAvatarBtn.classList.add("speaking-anim");
   }
 }
+
 
 function elegirSinRepetir(lista) {
   if (!lista.length) return "";
