@@ -205,7 +205,7 @@
     flex-direction: column;
     gap: 10px;
     width: 100%;
-    margin-top: 8px;
+    margin-top: 12px;
   }
 
   .ot-box {
@@ -214,8 +214,8 @@
     border-radius: 12px;
     padding: 12px 14px;
     display: flex;
-    flex-direction: column;
-    gap: 8px;
+    align-items: center;
+    gap: 10px;
     text-align: left;
   }
 
@@ -223,14 +223,16 @@
     font-size: 13px;
     font-weight: 500;
     color: var(--text-primary);
+    white-space: nowrap;
   }
 
   .ot-input {
-    width: 100%;
+    flex: 1;
+    min-width: 0;
     background: var(--bg-surface);
     border: 1px solid var(--border-subtle);
     border-radius: 10px;
-    padding: 9px 12px;
+    padding: 8px 12px;
     color: var(--text-primary);
     font-family: inherit;
     font-size: 14px;
@@ -492,7 +494,7 @@
     <div id="welcome-screen">
       <h1>¿En qué te ayudo?</h1>
       <p>Selecciona, escribe o envíame un audio</p>
-      <div class="suggestions">
+      <div id="suggestions-grid" class="suggestions">
         <button type="button" class="suggestion-card" onclick="prepararBoton('carga')">
           <strong>Carga de POS</strong>
           Escríbeme: "Carga " + Comercio + Modelo POS
@@ -564,6 +566,7 @@ const chat = document.getElementById('chat');
 const chatScroll = document.getElementById('chat-scroll');
 const promptHint = document.getElementById('prompt-hint');
 const audioBlockedNotice = document.getElementById('audio-blocked-notice');
+const suggestionsGrid = document.getElementById('suggestions-grid');
 const liquidacionPanel = document.getElementById('liquidacion-panel');
 
 let audioCheckTimer = null;
@@ -606,20 +609,24 @@ function ocultarAvisoIndicacion() {
   promptHint.textContent = "";
 }
 
-function ocultarPanelLiquidacion() {
+function mostrarSugerenciasPrincipales() {
+  if (suggestionsGrid) {
+    suggestionsGrid.style.display = "grid";
+  }
   if (liquidacionPanel) {
     liquidacionPanel.style.display = "none";
   }
 }
 
 function abrirOpcionesPlantilla() {
-  if (!liquidacionPanel) return;
-  const visible = liquidacionPanel.style.display === "flex";
-  liquidacionPanel.style.display = visible ? "none" : "flex";
-  if (!visible) {
-    const otInput = document.getElementById('ot-input');
-    if (otInput) otInput.focus();
+  if (suggestionsGrid) {
+    suggestionsGrid.style.display = "none";
   }
+  if (liquidacionPanel) {
+    liquidacionPanel.style.display = "flex";
+  }
+  const otInput = document.getElementById('ot-input');
+  if (otInput) otInput.focus();
 }
 
 function seleccionarContometro() {
@@ -651,7 +658,7 @@ function limpiarChat() {
   clearTimeout(audioCheckTimer);
   ocultarAvisoIndicacion();
   ocultarAvisoAudioBloqueado();
-  ocultarPanelLiquidacion();
+  mostrarSugerenciasPrincipales();
 
   const otInput = document.getElementById('ot-input');
   if (otInput) otInput.value = "";
@@ -666,7 +673,7 @@ function prepararBoton(clave) {
   const config = ACCIONES_BOTONES[clave];
   if (!config) return;
 
-  ocultarPanelLiquidacion();
+  mostrarSugerenciasPrincipales();
 
   if ("speechSynthesis" in window) {
     speechSynthesis.cancel();
