@@ -7,7 +7,7 @@ const SUBTITULO_INICIAL = "Selecciona, escribe o envíame un audio";
 const TITULO_PLANTILLAS = "Plantillas y Fotos";
 
 const MENSAJES_ASISTENTE = {
-  inicio: "Listo para ayudarte",
+  inicio: "Hola!",
   plantilla: "Elige una opción para buscar la info",
   contometro: "Revisa los datos para liquidación de Contómetro",
   ot: "Escribe el número de OT para continuar",
@@ -22,7 +22,19 @@ const MENSAJES_ASISTENTE = {
 const SALUDOS_ALEATORIOS = [
   "¡Hola! ¿Qué tal?",
   "¡Hey! ¿Todo bien por ahí?",
-  "¡Qué tal! Por aquí ando.",
+  "¡Qué tal! Por aquí ando",
+  "¿Cómo va todo?",
+  "Tienes tiempo libre eh!",
+  "¡Hola! Soy Makybot!",
+  "¿Quieres saber la hora?",
+  "¿Todo bien en el trabajo?",
+  "Soy la mejor IA",
+  "Pronto es hora de comer",
+  "¿Te ayudo?",
+  "¿Qué cuentas?",
+  "¿Ya aprendiste?",
+  "No te cansas eh!",
+  "Iré a jugar",
   "¡Hola! ¿Cómo va todo?"
 ];
 
@@ -30,6 +42,9 @@ const AVISOS_ALEATORIOS = [
   "Aquí estoy si necesitas revisar algo.",
   "Cuando quieras, elige una opción.",
   "Todo listo para continuar.",
+  "Tengo todas las herramientas",
+  "Aprendo muy rápido",
+  "Confundido?",
   "¿Revisamos alguna OT o guía?"
 ];
 
